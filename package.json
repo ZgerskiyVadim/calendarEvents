@@ -1,0 +1,23 @@
+{
+  "name": "calendarevents",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "babel": "npx babel indexES6.js --watch --presets babel-preset-env --out-file main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "path": "^0.12.7"
+  },
+  "presets": [
+    "env"
+  ],
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "eslint": "^4.19.1"
+  }
+}
