@@ -1,30 +1,36 @@
-import calendarEvents from '../main';
+import calendarEvents from './calendarEvents';
 
 export default (function () {
+    let parsedDate = {};
+    let parsedTime = {};
+
     return {
-        createTimer(newEvent) {
-            newEvent.timer = setInterval(() => {
-                newEvent.timeToFinish = newEvent.timeToFinish - 1;
-                console.log('timeLeft', newEvent.timeToFinish);
-                if (newEvent.timeToFinish <= 0) {
-                    newEvent.event();
-                    calendarEvents.deleteEvent(newEvent.nameOfEvent);
+        createTimer(that) {
+
+            console.log('this', that);
+            return setInterval(() => {
+                this.timeToFinish = this.timeToFinish - 1;
+                console.log('eventName', this.eventName);
+                console.log('timeToFinish', this.timeToFinish);
+                if (this.timeToFinish <= 0) {
+                    this.callback();
+                    calendarEvents.deleteEvent(this.eventName);
                 }
             }, 1000);
         },
 
-        parseData (date, time) {
-            const dateObj = this.parseDate(date);
-            const timeObj = this.parseTime(time);
-            const dateNowInMiliSeconds = new Date().getTime();
-            const dateBeforeFinishInMiliSeconds = new Date(dateObj.year, dateObj.month, dateObj.day, timeObj.hour, timeObj.minute, timeObj.second).getTime();
-            const chosenDate = new Date(dateObj.year, dateObj.month, dateObj.day, timeObj.hour, timeObj.minute, timeObj.second);
-            const timeToFinish = parseInt((dateBeforeFinishInMiliSeconds - dateNowInMiliSeconds) / 1000);
-            console.log('timeToFinish', timeToFinish);
-            return {
-                timeToFinish,
-                chosenDate
-            };
+        globalTimer() {
+            const allEvents = calendarEvents.getEvents;
+            console.log('Math.min', Math.min(...allEvents));
+        },
+        get getTimeToFinish() {
+            const nowDate = new Date().getTime();
+            const chosenDate = this.newDate.getTime();
+            return parseInt((chosenDate - nowDate) / 1000);
+        },
+
+        get newDate() {
+            return new Date(parsedDate.year, parsedDate.month, parsedDate.day, parsedTime.hour, parsedTime.minute, parsedTime.second);
         },
 
         parseDate (date) {
@@ -33,7 +39,7 @@ export default (function () {
             const month = arrayDate[1] - 1;
             const year = arrayDate[2];
 
-            return {
+            parsedDate =  {
                 day,
                 month,
                 year
@@ -46,7 +52,7 @@ export default (function () {
             const minute = arrayTime[1];
             const second = arrayTime[2];
 
-            return {
+            parsedTime = {
                 hour,
                 minute,
                 second
