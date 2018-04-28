@@ -1,93 +1,66 @@
-'use strict';
+import helperModule from './modules/helper';
+import repeatModule from './modules/repeatEvent';
 
-var calendar = function () {
-    var events = [];
+const calendar = (function () {
+    const events = [];
 
     return {
-        createEvent: function createEvent(nameOfEvent, date, time, event) {
-            var parsedData = moduleHelper.parseData(date, time);
-            var newEvent = {
-                nameOfEvent: nameOfEvent,
-                parsedData: parsedData,
-                event: event
+        createEvent(nameOfEvent, date, time, event) {
+            const timeToFinish = helperModule.parseData(date, time).timeToFinish;
+            const newEvent = {
+                nameOfEvent,
+                timeToFinish,
+                event
             };
-            moduleHelper.createTimer(newEvent, parsedData);
+            helperModule.createTimer(newEvent);
             events.push(newEvent);
         },
-        changeEvent: function changeEvent(nameOfEvent, date, time, event) {
+
+        changeEvent(nameOfEvent, date, time, event){
             console.log('changeEventchangeEventchangeEvent');
-            events.forEach(function (elem) {
+            events.forEach(elem => {
                 console.log('changeEvent elem', elem);
-                if (elem.nameOfEvent === nameOfEvent) {
+                if(elem.event === event) {
                     clearInterval(elem.timer);
-                    var parsedData = moduleHelper.parseData(date, time);
+                    const timeToFinish = helperModule.parseData(date, time).timeToFinish;
                     elem.nameOfEvent = nameOfEvent;
-                    elem.parsedData = parsedData;
-                    elem.event = event;
-                    moduleHelper.createTimer(elem, parsedData);
+                    elem.timeToFinish = timeToFinish;
+                    clearInterval(elem.timer);
+                    helperModule.createTimer(elem);
                     console.log('changeEVe tnttn', elem);
                 }
             });
         },
-        deleteEvent: function deleteEvent(nameOfEvent) {
-            events.forEach(function (elem) {
-                if (elem.nameOfEvent === nameOfEvent) {
+
+        deleteEvent(nameOfEvent) {
+            events.forEach((elem, index) => {
+                if(elem.nameOfEvent === nameOfEvent) {
                     clearInterval(elem.timer);
+                    events.splice(index, 1);
                 }
             });
         },
 
-
-        get getEvent() {
+        get getEvents () {
             return events;
         }
     };
-}();
+}());
 
-var moduleHelper = function () {
-    return {
-        createTimer: function createTimer(newEvent) {
-            newEvent.timer = setInterval(function () {
-                console.log('event', newEvent.event);
-            }, 2000);
-        },
-        parseData: function parseData(date, time) {
-            var dateObj = this.parseDate(date);
-            var timeObj = this.parseTime(time);
+const testFunc = () => {
+    console.log('TEST FUNc');
+};
 
-            return new Date(dateObj.year, dateObj.month, dateObj.day, timeObj.hour, timeObj.minute, timeObj.second);
-        },
-        parseDate: function parseDate(date) {
-            var arrayDate = date.split('.');
-            var day = arrayDate[0];
-            var month = arrayDate[1] - 1;
-            var year = arrayDate[2];
+const testFunc1 = () => {
+    console.log('TEST FUNc');
+};
 
-            return {
-                day: day,
-                month: month,
-                year: year
-            };
-        },
-        parseTime: function parseTime(time) {
-            var arrayTime = time.split(':');
-            var hour = arrayTime[0];
-            var minute = arrayTime[1];
-            var second = arrayTime[2];
-
-            return {
-                hour: hour,
-                minute: minute,
-                second: second
-            };
-        }
-    };
-}();
-
-function testFunc(someText) {
-    return someText;
-}
-
-calendar.createEvent('nameOfEvent', '12.12.1993', '16:30:00', testFunc);
-calendar.changeEvent('nameOfEvent', '22.22.2993', '16:30:00', function newFunc() {});
+calendar.createEvent('nameOfEvent', '28.04.2018', '12:11:00', testFunc);
+calendar.createEvent('nameOfE2vent', '28.04.2018', '11:59:00', testFunc1);
+calendar.changeEvent('NEW NAME nameOfE2vent', '28.04.2018', '12:12:00', testFunc);
+// calendar.changeEvent('nameOfEvent', '28.04.2018', '16:30:00', function newFunc() {});
 // calendar.deleteEvent('nameOfEvent');
+
+repeatModule.everySelectedDay('nameOfEvent', '28.04.2018', '12:11:00', testFunc, 1 ,2 ,3);
+
+export default calendar;
