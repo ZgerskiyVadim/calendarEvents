@@ -1,40 +1,33 @@
 import helperModule from './helper';
-import repeatModule from './repeatEvent';
 
 const calendar = (function () {
-    const events = [];
+    let events = [];
+    let interval;
+    let countdown = 0;
+    let secondsLeft = 0;
 
     return {
         createEvent(eventName, date, time, callback) {
-            helperModule.parseDate(date);
-            helperModule.parseTime(time);
-            const timeToFinish = helperModule.getTimeToFinish;
+            const timeToFinish = helperModule.getTimeInSeconds(date, time);
+            const newDate = helperModule.newDate(date, time);
             const newEvent = {
                 eventName,
                 timeToFinish,
-                callback,
-                timer: function (){
-                    return helperModule.createTimer(this);
-                }
+                newDate,
+                callback
             };
-            // clearInterval(newEvent.timer());
-            helperModule.createTimer(newEvent);
             events.push(newEvent);
+            this.startAndRefreshTimer();
         },
 
         changeEvent(eventName, date, time, callback) {
             events.forEach(elem => {
-                console.log('changeEvent elem', elem);
                 if(elem.callback === callback) {
-                    clearInterval(elem.timer);
-                    helperModule.parseDate(date);
-                    helperModule.parseTime(time);
-                    const timeToFinish = helperModule.getTimeToFinish;
+                    const timeToFinish = helperModule.getTimeInSeconds(date, time);
+                    this.setEventsByTime = secondsLeft;
                     elem.eventName = eventName;
                     elem.timeToFinish = timeToFinish;
-                    clearInterval(elem.timer);
-                    helperModule.createTimer(elem);
-                    console.log('changeEVe tnttn', elem);
+                    this.startAndRefreshTimer();
                 }
             });
         },
@@ -42,39 +35,63 @@ const calendar = (function () {
         deleteEvent(eventName) {
             events.forEach((elem, index) => {
                 if(elem.eventName === eventName) {
-                    clearInterval(elem.timer);
                     events.splice(index, 1);
+                    this.startAndRefreshTimer();
                 }
             });
         },
 
-        get eventsPerDay () {
+        startAndRefreshTimer() {
+            clearInterval(interval);
+            const minEvent = events.length ? helperModule.minValueOfTime(events) : {};
 
+            if (minEvent.timeToFinish > 0) {
+                countdown = minEvent.timeToFinish;
+                interval = setInterval(() => {
+                    countdown = countdown - 1;
+                    secondsLeft = secondsLeft + 1;
+                    if (countdown <= 0) {
+                        secondsLeft = 0;
+                        minEvent.callback();
+                        clearInterval(interval);
+                        this.setEventsByTime = minEvent.timeToFinish;
+                        this.deleteEvent(minEvent.eventName);
+                    }
+                }, 1000);
+            } else if (minEvent.callback) {
+                minEvent.callback();
+                this.deleteEvent(minEvent.eventName);
+            }
         },
 
         get getEvents () {
             return events;
+        },
+
+        set setEventsByTime (minTime) {
+            events.forEach(event => event.timeToFinish = event.timeToFinish - minTime);
         }
     };
 }());
-
-export default calendar;
 
 const testFunc = () => {
     console.log('TEST FUNc');
 };
 
 const testFunc1 = () => {
-    console.log('TEST FUNc');
+    console.log('TEST FUNc11111111111');
 };
-// helperModule.globalTimer();
 
-calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
-calendar.createEvent('1', '28.04.2018', '15:46:50', testFunc1);
-calendar.createEvent('2', '28.04.2018', '15:46:50', testFunc1);
+
+// calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
+calendar.createEvent('1', '02.05.2018', '16:54:40', testFunc1);
+calendar.createEvent('2', '02.05.2018', '16:54:50', testFunc);
+
+setTimeout(() => {
+    calendar.changeEvent('1', '02.05.2018', '14:35:30', testFunc1);
+}, 3000);
+
 // calendar.createEvent('3', '28.04.2018', '15:46:50', testFunc1);
 // calendar.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
 // calendar.deleteEvent('eventName');
-
-repeatModule.everySelectedDay('eventName', '28.04.2018', '12:11:00', testFunc, 1 ,2 ,3);
-
+export default calendar;
