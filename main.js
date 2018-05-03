@@ -11,10 +11,13 @@ const testFunc1 = () => {
     console.log('TEST FUNc11111111111');
 };
 
+function ky() {
+    console.log('KY');
+}
 
 // calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
-// calendar.createEvent('1', '02.05.2018', '17:24:10', testFunc1);
-// calendar.createEvent('2', '02.05.2018', '17:24:20', testFunc);
+calendar.createEvent('1', '03.05.2018', '18:48:30', testFunc1);
+calendar.createEvent('2', '03.05.2018', '18:48:20', testFunc);
 
 // setTimeout(() => {
 //     calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
@@ -22,9 +25,24 @@ const testFunc1 = () => {
 // }, 3000);
 
 
+// calendar.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
 
-calendar.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
-calendar.createEvent('2', '03.05.2018', '15:29:25', testFunc);
+// repeatEvent.everyDay('kek', '03.05.2018', '18:37:30', ky);
+//
+//
+// setTimeout(() => {
+//     calendar.changeEvent('lol', '03.05.2018', '18:37:20', ky);
+// }, 1000);
+
+
+
+// setTimeout(() => {
+//     console.log('DELETE');
+//     calendar.deleteEvent('kek');
+// }, 10000);
+
+
+// calendar.createEvent('2', '03.05.2018', '15:29:25', testFunc);
 calendar.callCallbackBeforeEvent(4, function () {
     console.log('CALLLBACK');
 });

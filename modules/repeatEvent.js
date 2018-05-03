@@ -5,9 +5,10 @@ const repeatEvent = (function () {
     return {
         everyDay(eventName, date, time, callback) {
             calendarEvents.subscribe(eventName, () => {
-                setInterval(() => {
+                setTimeout(() => {
                     callback();
-                }, secondsInDay);
+                    calendarEvents.trigger(eventName);
+                }, 2000);
             });
             calendarEvents.createEvent(eventName, date, time, callback);
         },

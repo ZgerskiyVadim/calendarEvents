@@ -9,6 +9,11 @@ class Observable {
 
     unsubscribe (func) {
         this.observers = this.observers.filter(subscriber => subscriber.func !== func);
+        console.table(this.observers);
+    }
+
+    unsubscribeByKey (key) {
+        this.observers = this.observers.filter(subscriber => subscriber.key !== key);
     }
 
     trigger (key) {

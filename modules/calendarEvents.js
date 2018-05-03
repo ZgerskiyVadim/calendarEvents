@@ -32,7 +32,9 @@ const calendar = (function () {
                     this.setEventsByTime = secondsLeft;
 
                     observer.unsubscribe(event.callback);
+                    console.table(event);
                     event = Object.assign(event, {eventName, timeToFinish, newDate});
+                    console.table(event);
                     this.subscribe(event.eventName, callback);
                     this.startAndRefreshTimer();
                 }
@@ -49,16 +51,20 @@ const calendar = (function () {
             });
         },
 
+        unsubscribeAllEvents(eventName) {
+            observer.unsubscribeByKey(eventName);
+        },
+
         startAndRefreshTimer() {
             clearInterval(interval);
             const eventWithMinTime = events.length ? helperModule.minValueOfTime(events) : {};
 
             if (eventWithMinTime.timeToFinish > 0) {
                 this.triggerSetInterval(eventWithMinTime);
-
-            } else if (eventWithMinTime.callback) {
-                observer.trigger(eventWithMinTime.eventName);
+            } else if (eventWithMinTime.timeToFinish <= 0) {
+                console.error('Please enter valid date');
                 this.deleteEvent(eventWithMinTime.eventName);
+                // observer.trigger(eventWithMinTime.eventName);
             }
         },
 
@@ -69,9 +75,9 @@ const calendar = (function () {
                 secondsLeft = secondsLeft + 1;
                 if (countdown <= 0) {
                     secondsLeft = 0;
-                    observer.trigger(eventWithMinTime.eventName);
                     clearInterval(interval);
                     this.setEventsByTime = eventWithMinTime.timeToFinish;
+                    observer.trigger(eventWithMinTime.eventName);
                     this.deleteEvent(eventWithMinTime.eventName);
                 }
                 console.log('countdown', countdown);
@@ -88,6 +94,10 @@ const calendar = (function () {
 
         subscribe(eventName, callback) {
             observer.subscribe(eventName, callback);
+        },
+
+        trigger(eventName) {
+            observer.trigger(eventName);
         },
 
         get getEvents () {

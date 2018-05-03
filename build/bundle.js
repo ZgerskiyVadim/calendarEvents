@@ -116,7 +116,9 @@ var calendar = function () {
                     _this.setEventsByTime = secondsLeft;
 
                     observer.unsubscribe(event.callback);
+                    console.table(event);
                     event = Object.assign(event, { eventName: eventName, timeToFinish: timeToFinish, newDate: newDate });
+                    console.table(event);
                     _this.subscribe(event.eventName, callback);
                     _this.startAndRefreshTimer();
                 }
@@ -133,15 +135,19 @@ var calendar = function () {
                 }
             });
         },
+        unsubscribeAllEvents: function unsubscribeAllEvents(eventName) {
+            observer.unsubscribeByKey(eventName);
+        },
         startAndRefreshTimer: function startAndRefreshTimer() {
             clearInterval(interval);
             var eventWithMinTime = events.length ? _helper2.default.minValueOfTime(events) : {};
 
             if (eventWithMinTime.timeToFinish > 0) {
                 this.triggerSetInterval(eventWithMinTime);
-            } else if (eventWithMinTime.callback) {
-                observer.trigger(eventWithMinTime.eventName);
+            } else if (eventWithMinTime.timeToFinish <= 0) {
+                console.error('Please enter valid date');
                 this.deleteEvent(eventWithMinTime.eventName);
+                // observer.trigger(eventWithMinTime.eventName);
             }
         },
         triggerSetInterval: function triggerSetInterval(eventWithMinTime) {
@@ -153,9 +159,9 @@ var calendar = function () {
                 secondsLeft = secondsLeft + 1;
                 if (countdown <= 0) {
                     secondsLeft = 0;
-                    observer.trigger(eventWithMinTime.eventName);
                     clearInterval(interval);
                     _this3.setEventsByTime = eventWithMinTime.timeToFinish;
+                    observer.trigger(eventWithMinTime.eventName);
                     _this3.deleteEvent(eventWithMinTime.eventName);
                 }
                 console.log('countdown', countdown);
@@ -170,6 +176,9 @@ var calendar = function () {
         },
         subscribe: function subscribe(eventName, callback) {
             observer.subscribe(eventName, callback);
+        },
+        trigger: function trigger(eventName) {
+            observer.trigger(eventName);
         },
 
 
@@ -272,9 +281,13 @@ var testFunc1 = function testFunc1() {
     console.log('TEST FUNc11111111111');
 };
 
+function ky() {
+    console.log('KY');
+}
+
 // calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
-// calendar.createEvent('1', '02.05.2018', '17:24:10', testFunc1);
-// calendar.createEvent('2', '02.05.2018', '17:24:20', testFunc);
+_calendarEvents2.default.createEvent('1', '03.05.2018', '18:48:30', testFunc1);
+_calendarEvents2.default.createEvent('2', '03.05.2018', '18:48:20', testFunc);
 
 // setTimeout(() => {
 //     calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
@@ -282,8 +295,23 @@ var testFunc1 = function testFunc1() {
 // }, 3000);
 
 
-_calendarEvents2.default.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
-_calendarEvents2.default.createEvent('2', '03.05.2018', '15:29:25', testFunc);
+// calendar.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
+
+// repeatEvent.everyDay('kek', '03.05.2018', '18:37:30', ky);
+//
+//
+// setTimeout(() => {
+//     calendar.changeEvent('lol', '03.05.2018', '18:37:20', ky);
+// }, 1000);
+
+
+// setTimeout(() => {
+//     console.log('DELETE');
+//     calendar.deleteEvent('kek');
+// }, 10000);
+
+
+// calendar.createEvent('2', '03.05.2018', '15:29:25', testFunc);
 _calendarEvents2.default.callCallbackBeforeEvent(4, function () {
     console.log('CALLLBACK');
 });
@@ -340,6 +368,14 @@ var Observable = function () {
         value: function unsubscribe(func) {
             this.observers = this.observers.filter(function (subscriber) {
                 return subscriber.func !== func;
+            });
+            console.table(this.observers);
+        }
+    }, {
+        key: "unsubscribeByKey",
+        value: function unsubscribeByKey(key) {
+            this.observers = this.observers.filter(function (subscriber) {
+                return subscriber.key !== key;
             });
         }
     }, {
@@ -428,9 +464,10 @@ var repeatEvent = function () {
     return {
         everyDay: function everyDay(eventName, date, time, callback) {
             _calendarEvents2.default.subscribe(eventName, function () {
-                setInterval(function () {
+                setTimeout(function () {
                     callback();
-                }, secondsInDay);
+                    _calendarEvents2.default.trigger(eventName);
+                }, 2000);
             });
             _calendarEvents2.default.createEvent(eventName, date, time, callback);
         },
