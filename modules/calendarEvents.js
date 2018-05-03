@@ -64,7 +64,6 @@ const calendar = (function () {
             } else if (eventWithMinTime.timeToFinish <= 0) {
                 console.error('Please enter valid date');
                 this.deleteEvent(eventWithMinTime.eventName);
-                // observer.trigger(eventWithMinTime.eventName);
             }
         },
 
