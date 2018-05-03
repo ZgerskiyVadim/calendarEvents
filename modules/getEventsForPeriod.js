@@ -27,7 +27,4 @@ const getEvents = (function () {
     };
 }());
 
-// console.log('getEvents.perDay(3)', getEvents.perDay(3));
-// console.log('getEvents.perMonth(5)', getEvents.perMonth(5));
-// console.log('getEvents.perWeek(1)', getEvents.perWeek(1));
-// console.log('getEvents.perPeriod', getEvents.perPeriod('02.05.2018', '03.05.2018'));
+export default getEvents;

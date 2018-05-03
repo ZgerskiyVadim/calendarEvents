@@ -2,9 +2,9 @@ export default (function () {
 
     return {
 
-        getTimeInSeconds (date, time) {
+        getTimeInSeconds (newDate) {
             const nowDate = new Date().getTime();
-            const chosenDate = this.newDate(date, time).getTime();
+            const chosenDate = newDate.getTime();
             return parseInt((chosenDate - nowDate) / 1000);
         },
 

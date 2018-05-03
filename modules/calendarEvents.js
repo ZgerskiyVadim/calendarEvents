@@ -11,8 +11,8 @@ const calendar = (function () {
 
     return {
         createEvent(eventName, date, time, callback) {
-            const timeToFinish = helperModule.getTimeInSeconds(date, time);
             const newDate = helperModule.newDate(date, time);
+            const timeToFinish = helperModule.getTimeInSeconds(newDate);
             const newEvent = {
                 eventName,
                 timeToFinish,
@@ -20,19 +20,20 @@ const calendar = (function () {
                 callback
             };
             events.push(newEvent);
-            observer.subscribe(eventName, callback);
+            this.subscribe(eventName, callback);
             this.startAndRefreshTimer();
         },
 
         changeEvent(eventName, date, time, callback) {
             events.forEach(event => {
                 if(event.callback === callback) {
-                    const timeToFinish = helperModule.getTimeInSeconds(date, time);
+                    const newDate = helperModule.newDate(date, time);
+                    const timeToFinish = helperModule.getTimeInSeconds(newDate);
                     this.setEventsByTime = secondsLeft;
-                    event.eventName = eventName;
-                    event.timeToFinish = timeToFinish;
+
                     observer.unsubscribe(event.callback);
-                    observer.subscribe(event.eventName, callback);
+                    event = Object.assign(event, {eventName, timeToFinish, newDate});
+                    this.subscribe(event.eventName, callback);
                     this.startAndRefreshTimer();
                 }
             });
@@ -56,7 +57,6 @@ const calendar = (function () {
                 this.triggerSetInterval(eventWithMinTime);
 
             } else if (eventWithMinTime.callback) {
-                // eventWithMinTime.callback();
                 observer.trigger(eventWithMinTime.eventName);
                 this.deleteEvent(eventWithMinTime.eventName);
             }
@@ -69,7 +69,6 @@ const calendar = (function () {
                 secondsLeft = secondsLeft + 1;
                 if (countdown <= 0) {
                     secondsLeft = 0;
-                    // eventWithMinTime.callback();
                     observer.trigger(eventWithMinTime.eventName);
                     clearInterval(interval);
                     this.setEventsByTime = eventWithMinTime.timeToFinish;
@@ -77,6 +76,14 @@ const calendar = (function () {
                 }
                 console.log('countdown', countdown);
             }, 1000);
+        },
+
+        callCallbackBeforeEvent(seconds, callback) {
+            setInterval(() => {
+                if (countdown === seconds) {
+                    callback();
+                }
+            });
         },
 
         subscribe(eventName, callback) {
@@ -87,33 +94,10 @@ const calendar = (function () {
             return events;
         },
 
-        set setEventsByTime (minTime) {
-            events.forEach(event => event.timeToFinish = event.timeToFinish - minTime);
+        set setEventsByTime (secondsLeft) {
+            events.forEach(event => event.timeToFinish = event.timeToFinish - secondsLeft);
         }
     };
 }());
 
-const testFunc = () => {
-    console.log('TEST FUNc');
-};
-
-const testFunc1 = () => {
-    console.log('TEST FUNc11111111111');
-};
-
-
-// calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
-calendar.createEvent('1', '02.05.2018', '17:24:10', testFunc1);
-calendar.createEvent('2', '02.05.2018', '17:24:20', testFunc);
-
-setTimeout(() => {
-    calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
-    calendar.deleteEvent('1');
-}, 3000);
-
-
-
-// calendar.createEvent('3', '28.04.2018', '15:46:50', testFunc1);
-// calendar.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
-// calendar.deleteEvent('eventName');
 export default calendar;

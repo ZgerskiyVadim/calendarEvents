@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -78,7 +78,7 @@ var _helper = __webpack_require__(1);
 
 var _helper2 = _interopRequireDefault(_helper);
 
-var _observer = __webpack_require__(2);
+var _observer = __webpack_require__(3);
 
 var _observer2 = _interopRequireDefault(_observer);
 
@@ -94,8 +94,8 @@ var calendar = function () {
 
     return {
         createEvent: function createEvent(eventName, date, time, callback) {
-            var timeToFinish = _helper2.default.getTimeInSeconds(date, time);
             var newDate = _helper2.default.newDate(date, time);
+            var timeToFinish = _helper2.default.getTimeInSeconds(newDate);
             var newEvent = {
                 eventName: eventName,
                 timeToFinish: timeToFinish,
@@ -103,7 +103,7 @@ var calendar = function () {
                 callback: callback
             };
             events.push(newEvent);
-            observer.subscribe(eventName, callback);
+            this.subscribe(eventName, callback);
             this.startAndRefreshTimer();
         },
         changeEvent: function changeEvent(eventName, date, time, callback) {
@@ -111,12 +111,13 @@ var calendar = function () {
 
             events.forEach(function (event) {
                 if (event.callback === callback) {
-                    var timeToFinish = _helper2.default.getTimeInSeconds(date, time);
+                    var newDate = _helper2.default.newDate(date, time);
+                    var timeToFinish = _helper2.default.getTimeInSeconds(newDate);
                     _this.setEventsByTime = secondsLeft;
-                    event.eventName = eventName;
-                    event.timeToFinish = timeToFinish;
+
                     observer.unsubscribe(event.callback);
-                    observer.subscribe(event.eventName, callback);
+                    event = Object.assign(event, { eventName: eventName, timeToFinish: timeToFinish, newDate: newDate });
+                    _this.subscribe(event.eventName, callback);
                     _this.startAndRefreshTimer();
                 }
             });
@@ -139,7 +140,6 @@ var calendar = function () {
             if (eventWithMinTime.timeToFinish > 0) {
                 this.triggerSetInterval(eventWithMinTime);
             } else if (eventWithMinTime.callback) {
-                // eventWithMinTime.callback();
                 observer.trigger(eventWithMinTime.eventName);
                 this.deleteEvent(eventWithMinTime.eventName);
             }
@@ -153,7 +153,6 @@ var calendar = function () {
                 secondsLeft = secondsLeft + 1;
                 if (countdown <= 0) {
                     secondsLeft = 0;
-                    // eventWithMinTime.callback();
                     observer.trigger(eventWithMinTime.eventName);
                     clearInterval(interval);
                     _this3.setEventsByTime = eventWithMinTime.timeToFinish;
@@ -161,6 +160,13 @@ var calendar = function () {
                 }
                 console.log('countdown', countdown);
             }, 1000);
+        },
+        callCallbackBeforeEvent: function callCallbackBeforeEvent(seconds, callback) {
+            setInterval(function () {
+                if (countdown === seconds) {
+                    callback();
+                }
+            });
         },
         subscribe: function subscribe(eventName, callback) {
             observer.subscribe(eventName, callback);
@@ -171,34 +177,14 @@ var calendar = function () {
             return events;
         },
 
-        set setEventsByTime(minTime) {
+        set setEventsByTime(secondsLeft) {
             events.forEach(function (event) {
-                return event.timeToFinish = event.timeToFinish - minTime;
+                return event.timeToFinish = event.timeToFinish - secondsLeft;
             });
         }
     };
 }();
 
-var testFunc = function testFunc() {
-    console.log('TEST FUNc');
-};
-
-var testFunc1 = function testFunc1() {
-    console.log('TEST FUNc11111111111');
-};
-
-// calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
-calendar.createEvent('1', '02.05.2018', '17:24:10', testFunc1);
-calendar.createEvent('2', '02.05.2018', '17:24:20', testFunc);
-
-setTimeout(function () {
-    calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
-    calendar.deleteEvent('1');
-}, 3000);
-
-// calendar.createEvent('3', '28.04.2018', '15:46:50', testFunc1);
-// calendar.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
-// calendar.deleteEvent('eventName');
 exports.default = calendar;
 
 /***/ }),
@@ -215,9 +201,9 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = function () {
 
     return {
-        getTimeInSeconds: function getTimeInSeconds(date, time) {
+        getTimeInSeconds: function getTimeInSeconds(newDate) {
             var nowDate = new Date().getTime();
-            var chosenDate = this.newDate(date, time).getTime();
+            var chosenDate = newDate.getTime();
             return parseInt((chosenDate - nowDate) / 1000);
         },
         newDate: function newDate(date, time) {
@@ -259,6 +245,71 @@ exports.default = function () {
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _calendarEvents = __webpack_require__(0);
+
+var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
+
+var _getEventsForPeriod = __webpack_require__(4);
+
+var _getEventsForPeriod2 = _interopRequireDefault(_getEventsForPeriod);
+
+var _repeatEvent = __webpack_require__(5);
+
+var _repeatEvent2 = _interopRequireDefault(_repeatEvent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var testFunc = function testFunc() {
+    console.log('TEST FUNc');
+};
+
+var testFunc1 = function testFunc1() {
+    console.log('TEST FUNc11111111111');
+};
+
+// calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
+// calendar.createEvent('1', '02.05.2018', '17:24:10', testFunc1);
+// calendar.createEvent('2', '02.05.2018', '17:24:20', testFunc);
+
+// setTimeout(() => {
+//     calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
+//     calendar.deleteEvent('1');
+// }, 3000);
+
+
+_calendarEvents2.default.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
+_calendarEvents2.default.createEvent('2', '03.05.2018', '15:29:25', testFunc);
+_calendarEvents2.default.callCallbackBeforeEvent(4, function () {
+    console.log('CALLLBACK');
+});
+
+// calendar.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
+// calendar.deleteEvent('eventName');
+
+// GET EVENT PER PERIOD ------------------------------------------------------------------
+
+// console.log('getEvents.perDay(3)', getEvents.perDay(3));
+// console.log('getEvents.perMonth(5)', getEvents.perMonth(5));
+// console.log('getEvents.perWeek(1)', getEvents.perWeek(1));
+// console.log('getEvents.perPeriod', getEvents.perPeriod('02.05.2018', '03.05.2018'));
+
+// REPEAT EVENT------------------------------------------------------------------
+
+// repeatEvent.everySelectedDay('hell', '03.05.2018', '12:55:00', function () {
+//     console.log('REPEAT');
+// }, 3, 6 , 8);
+
+// repeatEvent.everyDay('KEk', '02.05.2018', '18:06:30', function () {
+//     console.log('KY');
+// });
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -306,32 +357,15 @@ var Observable = function () {
 exports.default = Observable;
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _calendarEvents = __webpack_require__(0);
-
-var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
-
-var _getEventsForPeriod = __webpack_require__(4);
-
-var _getEventsForPeriod2 = _interopRequireDefault(_getEventsForPeriod);
-
-var _repeatEvent = __webpack_require__(5);
-
-var _repeatEvent2 = _interopRequireDefault(_repeatEvent);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
 var _calendarEvents = __webpack_require__(0);
 
@@ -370,10 +404,7 @@ var getEvents = function () {
     };
 }();
 
-// console.log('getEvents.perDay(3)', getEvents.perDay(3));
-// console.log('getEvents.perMonth(5)', getEvents.perMonth(5));
-// console.log('getEvents.perWeek(1)', getEvents.perWeek(1));
-// console.log('getEvents.perPeriod', getEvents.perPeriod('02.05.2018', '03.05.2018'));
+exports.default = getEvents;
 
 /***/ }),
 /* 5 */
@@ -386,21 +417,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _observer = __webpack_require__(2);
-
-var _observer2 = _interopRequireDefault(_observer);
-
 var _calendarEvents = __webpack_require__(0);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
-var _helper = __webpack_require__(1);
-
-var _helper2 = _interopRequireDefault(_helper);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var observer = new _observer2.default();
 
 var repeatEvent = function () {
     var secondsInDay = 86400 * 1000;
@@ -418,49 +439,61 @@ var repeatEvent = function () {
                 selectedDays[_key - 4] = arguments[_key];
             }
 
-            var timeToFinish = this.getTimeInSeconds(selectedDays);
-            // calendarEvents.subscribe(eventName, () => {
-            //     const timeToFinish = this.getTimeInSeconds(selectedDays);
-            //     setInterval(() => {
-            //         callback();
-            //     }, secondsInDay);
-            // });
-            // calendarEvents.createEvent(eventName, date, time, callback);
-        },
-        getTimeInSeconds: function getTimeInSeconds(selectedDays) {
-            selectedDays = [4, 1];
-            var currentYear = new Date().getFullYear();
-            var currentMonth = new Date().getMonth() + 1;
-            var daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
-            var currentWeekDay = new Date().getDay();
-            console.log('currentWeekDay', currentWeekDay);
-            // const currentMonthDay = new Date().getDate();
-            var currentMonthDay = 30;
-            selectedDays = selectedDays.map(function (selectedWeekDay) {
-                var dayInMonth = selectedWeekDay - currentWeekDay + currentMonthDay;
+            var _this = this;
 
-                if (dayInMonth <= currentMonthDay && dayInMonth + 7 <= daysInCurrentMonth) {
-                    return dayInMonth + 7;
-                } else if (dayInMonth >= daysInCurrentMonth) {
-                    var monthDay = Math.abs(daysInCurrentMonth - dayInMonth) ? Math.abs(daysInCurrentMonth - dayInMonth) : daysInCurrentMonth;
-                    return monthDay;
-                } else {
-                    return dayInMonth;
-                }
-            }).map(function (selectedMonthDay) {
-                console.log('selectedMonthDay', selectedMonthDay);
+            var timeToFinish = this.getTimeInSecondsToClosestSelectedDay(selectedDays);
+            _calendarEvents2.default.subscribe(eventName, function () {
+                _this.timeoutForEverySelectedDay(selectedDays, timeToFinish, callback);
             });
+            _calendarEvents2.default.createEvent(eventName, date, time, callback);
+        },
+        timeoutForEveryDay: function timeoutForEveryDay(callback) {
+            var _this2 = this;
 
-            console.log('selectedDays', selectedDays);
+            setTimeout(function () {
+                callback();
+                _this2.timeoutForEveryDay(callback);
+            }, secondsInDay);
+        },
+        timeoutForEverySelectedDay: function timeoutForEverySelectedDay(selectedDays, timeToFinish, callback) {
+            var _this3 = this;
+
+            setTimeout(function () {
+                callback();
+                timeToFinish = _this3.getTimeInSecondsToClosestSelectedDay(selectedDays);
+                _this3.timeoutForEverySelectedDay(selectedDays, timeToFinish, callback);
+            }, timeToFinish);
+        },
+        getTimeInSecondsToClosestSelectedDay: function getTimeInSecondsToClosestSelectedDay(selectedDays) {
+            selectedDays = selectedDays.map(function (day) {
+                return day === 0 ? day + 7 : day;
+            });
+            var daysBeforeSelectedDay = getDaysToClosestSelectedDay(selectedDays);
+            return secondsInDay * daysBeforeSelectedDay;
         }
     };
 }();
 
-repeatEvent.getTimeInSeconds();
+function getDaysToClosestSelectedDay(selectedDays) {
+    var currentYear = new Date().getFullYear();
+    var currentMonth = new Date().getMonth() + 1;
+    var daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
+    var currentWeekDay = new Date().getDay();
+    var currentMonthDay = new Date().getDate();
 
-// repeatEvent.everyDay('hell', '02.05.2018', '18:06:30', function () {
-//     console.log('REPEAT');
-// });
+    var closestDayOfMonth = selectedDays.map(function (selectedWeekDay) {
+        var dayInMonth = selectedWeekDay - currentWeekDay + currentMonthDay;
+        if (dayInMonth - currentMonthDay <= 0) {
+            return dayInMonth + 7 <= daysInCurrentMonth ? dayInMonth + 7 : dayInMonth + 7 - daysInCurrentMonth;
+        } else {
+            return dayInMonth > daysInCurrentMonth ? dayInMonth - daysInCurrentMonth : dayInMonth;
+        }
+    }).reduce(function (prev, curr) {
+        return prev < curr ? prev : curr;
+    });
+
+    return closestDayOfMonth - currentMonthDay;
+}
 
 exports.default = repeatEvent;
 
