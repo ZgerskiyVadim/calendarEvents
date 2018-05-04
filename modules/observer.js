@@ -1,13 +1,15 @@
 class Observable {
     constructor () {
-        this.observers = [{key: 'aa', funcs:[old]}];
+        this.observers = [];
     }
 
     subscribe (key, func) {
-        if (this.observers.length) {
-            this.observers.forEach(subscriber => {
-                subscriber.key === key ? subscriber.funcs.push(func) : this.observers.push({key, funcs: [func]});
-            });
+        const keyIsExist = this.observers
+            .map(subscriber => subscriber.key)
+            .includes(key);
+
+        if (keyIsExist) {
+            this.observers.forEach(subscriber => (subscriber.key === key) && subscriber.funcs.push(func));
         } else {
             this.observers.push({key, funcs: [func]});
         }
@@ -15,9 +17,7 @@ class Observable {
 
     updateKey(prevKey, newKey) {
         this.observers.forEach(subscriber => {
-            if (subscriber.key === prevKey) {
-                subscriber.key = newKey;
-            }
+            (subscriber.key === prevKey) && (subscriber.key = newKey);
         });
     }
 
@@ -26,46 +26,17 @@ class Observable {
     }
 
     unsubscribeFunc(func) {
-        this.observers.forEach((subscriber, index) => {
-            subscriber.funcs.forEach(f => f === func ? this.observers.slice(index, 1) : undefined);
+        this.observers.forEach(subscriber => {
+            subscriber.funcs.forEach((f, index) => {
+                (f === func) && (subscriber.funcs.splice(index, 1));
+                subscriber.funcs.length && this.unsubscribe(subscriber.key);
+            });
         });
     }
 
     trigger (key) {
-        this.observers.forEach(subscriber => subscriber.key === key ? subscriber.funcs.forEach(f => f()) : undefined);
-        console.table(this.observers);
+        this.observers.forEach(subscriber => (subscriber.key === key) && (subscriber.funcs.forEach(f => f())));
     }
-}
-
-const obs = new Observable();
-obs.subscribe('aa', function () {
-    console.log('NEW SUB');
-});
-
-obs.trigger('aa');
-
-setInterval(()=> {
-    obs.unsubscribeFunc(old);
-}, 1000);
-
-setTimeout(() => {
-    obs.subscribe('bb', function () {
-        console.log('SS');
-    });
-}, 3000);
-
-
-setTimeout(() => {
-    obs.trigger('bb');
-}, 4000);
-
-setInterval(()=> {
-    obs.subscribe('aa', old);
-    obs.trigger('aa');
-}, 2000);
-
-function old() {
-    console.log('OLD SUB');
 }
 
 export default Observable;

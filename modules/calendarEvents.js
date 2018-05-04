@@ -16,7 +16,7 @@ const calendarEvents = (function () {
         } else {
             console.error('Please enter valid date');
             const events = calendarEvents.getEvents;
-            events.forEach((event, index) => event.name === newEvent.name ? events.splice(index, 1) : undefined);
+            events.forEach((event, index) => (event.name === newEvent.name) && events.splice(index, 1));
         }
     }
 
@@ -41,7 +41,7 @@ const calendarEvents = (function () {
                 calendarEvents.setEventsByTime = eventWithMinTime.timeToFinish;
                 calendarEvents.unsubscribeFunc(eventWithMinTime.callback);
                 //ydalit` event iz massiva вынести в отдельную функцию
-                events.forEach((event, index) => event.eventName === eventWithMinTime.eventName ? events.splice(index, 1) : undefined);
+                events.forEach((event, index) => (event.eventName === eventWithMinTime.eventName) && events.splice(index, 1));
 
                 calendarEvents.trigger(eventWithMinTime.eventName);
                 startAndRefreshTimer();

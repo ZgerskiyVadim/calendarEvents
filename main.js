@@ -17,8 +17,8 @@ function ky() {
 
 // calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
 
-repeatEvent.everyDay('kek', '04.05.2018', '17:48:20', ky);
-calendar.createEvent('min', '04.05.2018', '17:48:30', testFunc);
+repeatEvent.everyDay('kek', '04.05.2018', '19:34:00', ky);
+calendar.createEvent('min', '04.05.2018', '19:34:10', testFunc);
 
 // setTimeout(() => {
 //     calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);

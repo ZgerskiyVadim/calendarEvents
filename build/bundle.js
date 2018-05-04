@@ -100,7 +100,7 @@ var calendarEvents = function () {
             console.error('Please enter valid date');
             var _events = calendarEvents.getEvents;
             _events.forEach(function (event, index) {
-                return event.name === newEvent.name ? _events.splice(index, 1) : undefined;
+                return event.name === newEvent.name && _events.splice(index, 1);
             });
         }
     }
@@ -127,7 +127,7 @@ var calendarEvents = function () {
                 calendarEvents.unsubscribeFunc(eventWithMinTime.callback);
                 //ydalit` event iz massiva вынести в отдельную функцию
                 events.forEach(function (event, index) {
-                    return event.eventName === eventWithMinTime.eventName ? events.splice(index, 1) : undefined;
+                    return event.eventName === eventWithMinTime.eventName && events.splice(index, 1);
                 });
 
                 calendarEvents.trigger(eventWithMinTime.eventName);
@@ -302,8 +302,8 @@ function ky() {
 
 // calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
 
-_repeatEvent2.default.everyDay('kek', '04.05.2018', '17:48:20', ky);
-_calendarEvents2.default.createEvent('min', '04.05.2018', '17:48:30', testFunc);
+_repeatEvent2.default.everyDay('kek', '04.05.2018', '19:34:00', ky);
+_calendarEvents2.default.createEvent('min', '04.05.2018', '19:34:10', testFunc);
 
 // setTimeout(() => {
 //     calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
@@ -371,93 +371,63 @@ var Observable = function () {
     function Observable() {
         _classCallCheck(this, Observable);
 
-        this.observers = [{ key: 'aa', funcs: [old] }];
+        this.observers = [];
     }
 
     _createClass(Observable, [{
-        key: 'subscribe',
+        key: "subscribe",
         value: function subscribe(key, func) {
-            var _this = this;
+            var keyIsExist = this.observers.map(function (subscriber) {
+                return subscriber.key;
+            }).includes(key);
 
-            if (this.observers.length) {
+            if (keyIsExist) {
                 this.observers.forEach(function (subscriber) {
-                    subscriber.key === key ? subscriber.funcs.push(func) : _this.observers.push({ key: key, funcs: [func] });
+                    return subscriber.key === key && subscriber.funcs.push(func);
                 });
             } else {
                 this.observers.push({ key: key, funcs: [func] });
             }
         }
     }, {
-        key: 'updateKey',
+        key: "updateKey",
         value: function updateKey(prevKey, newKey) {
             this.observers.forEach(function (subscriber) {
-                if (subscriber.key === prevKey) {
-                    subscriber.key = newKey;
-                }
+                subscriber.key === prevKey && (subscriber.key = newKey);
             });
         }
     }, {
-        key: 'unsubscribe',
+        key: "unsubscribe",
         value: function unsubscribe(key) {
             this.observers = this.observers.filter(function (subscriber) {
                 return subscriber.key !== key;
             });
         }
     }, {
-        key: 'unsubscribeFunc',
+        key: "unsubscribeFunc",
         value: function unsubscribeFunc(func) {
-            var _this2 = this;
+            var _this = this;
 
-            this.observers.forEach(function (subscriber, index) {
-                subscriber.funcs.forEach(function (f) {
-                    return f === func ? _this2.observers.slice(index, 1) : undefined;
+            this.observers.forEach(function (subscriber) {
+                subscriber.funcs.forEach(function (f, index) {
+                    f === func && subscriber.funcs.splice(index, 1);
+                    subscriber.funcs.length && _this.unsubscribe(subscriber.key);
                 });
             });
         }
     }, {
-        key: 'trigger',
+        key: "trigger",
         value: function trigger(key) {
             this.observers.forEach(function (subscriber) {
-                return subscriber.key === key ? subscriber.funcs.forEach(function (f) {
+                return subscriber.key === key && subscriber.funcs.forEach(function (f) {
                     return f();
-                }) : undefined;
+                });
             });
-            console.table(this.observers);
         }
     }]);
 
     return Observable;
 }();
-
-var obs = new Observable();
-obs.subscribe('aa', function () {
-    console.log('NEW SUB');
-});
-
-obs.trigger('aa');
-
-setInterval(function () {
-    obs.unsubscribeFunc(old);
-}, 1000);
-
-setTimeout(function () {
-    obs.subscribe('bb', function () {
-        console.log('SS');
-    });
-}, 3000);
-
-setTimeout(function () {
-    obs.trigger('bb');
-}, 4000);
-
-setInterval(function () {
-    obs.subscribe('aa', old);
-    obs.trigger('aa');
-}, 2000);
-
-function old() {
-    console.log('OLD SUB');
-}
 
 exports.default = Observable;
 
