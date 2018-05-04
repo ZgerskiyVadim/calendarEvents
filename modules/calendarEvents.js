@@ -3,11 +3,53 @@ import Observable from './observer';
 
 const observer = new Observable();
 
-const calendar = (function () {
+const calendarEvents = (function () {
     let events = [];
     let interval;
     let countdown = 0;
     let secondsLeft = 0;
+
+    function checkValidOfTime(newEvent) {
+        if (newEvent.timeToFinish > 0) {
+            calendarEvents.subscribe(newEvent.eventName, newEvent.callback);
+            startAndRefreshTimer();
+        } else {
+            console.error('Please enter valid date');
+            const events = calendarEvents.getEvents;
+            events.forEach((event, index) => event.name === newEvent.name ? events.splice(index, 1) : undefined);
+        }
+    }
+
+    function startAndRefreshTimer() {
+        clearInterval(interval);
+        const eventWithMinTime = events.length ? helperModule.minValueOfTime(events) : {};
+
+        if (eventWithMinTime.timeToFinish) {
+            triggerSetInterval(eventWithMinTime);
+        }
+    }
+
+    function triggerSetInterval(eventWithMinTime) {
+        countdown = eventWithMinTime.timeToFinish;
+        interval = setInterval(() => {
+            countdown = countdown - 1;
+            secondsLeft = secondsLeft + 1;
+            if (countdown <= 0) {
+                secondsLeft = 0;
+                clearInterval(interval);
+                eventWithMinTime.callback();
+                calendarEvents.setEventsByTime = eventWithMinTime.timeToFinish;
+                calendarEvents.unsubscribeFunc(eventWithMinTime.callback);
+                //ydalit` event iz massiva вынести в отдельную функцию
+                events.forEach((event, index) => event.eventName === eventWithMinTime.eventName ? events.splice(index, 1) : undefined);
+
+                calendarEvents.trigger(eventWithMinTime.eventName);
+                startAndRefreshTimer();
+
+            }
+            console.log('countdown', countdown);
+        }, 1000);
+    }
 
     return {
         createEvent(eventName, date, time, callback) {
@@ -19,9 +61,10 @@ const calendar = (function () {
                 newDate,
                 callback
             };
+
             events.push(newEvent);
-            this.subscribe(eventName, callback);
-            this.startAndRefreshTimer();
+            checkValidOfTime(newEvent);
+            console.table(events);
         },
 
         changeEvent(eventName, date, time, callback) {
@@ -30,13 +73,9 @@ const calendar = (function () {
                     const newDate = helperModule.newDate(date, time);
                     const timeToFinish = helperModule.getTimeInSeconds(newDate);
                     this.setEventsByTime = secondsLeft;
-
-                    observer.unsubscribe(event.callback);
-                    console.table(event);
+                    observer.updateKey(event.eventName, eventName);
                     event = Object.assign(event, {eventName, timeToFinish, newDate});
-                    console.table(event);
-                    this.subscribe(event.eventName, callback);
-                    this.startAndRefreshTimer();
+                    checkValidOfTime(event);
                 }
             });
         },
@@ -44,43 +83,11 @@ const calendar = (function () {
         deleteEvent(eventName) {
             events.forEach((event, index) => {
                 if(event.eventName === eventName) {
-                    observer.unsubscribe(event.callback);
+                    observer.unsubscribe(event.eventName);
                     events.splice(index, 1);
-                    this.startAndRefreshTimer();
+                    startAndRefreshTimer();
                 }
             });
-        },
-
-        unsubscribeAllEvents(eventName) {
-            observer.unsubscribeByKey(eventName);
-        },
-
-        startAndRefreshTimer() {
-            clearInterval(interval);
-            const eventWithMinTime = events.length ? helperModule.minValueOfTime(events) : {};
-
-            if (eventWithMinTime.timeToFinish > 0) {
-                this.triggerSetInterval(eventWithMinTime);
-            } else if (eventWithMinTime.timeToFinish <= 0) {
-                console.error('Please enter valid date');
-                this.deleteEvent(eventWithMinTime.eventName);
-            }
-        },
-
-        triggerSetInterval(eventWithMinTime) {
-            countdown = eventWithMinTime.timeToFinish;
-            interval = setInterval(() => {
-                countdown = countdown - 1;
-                secondsLeft = secondsLeft + 1;
-                if (countdown <= 0) {
-                    secondsLeft = 0;
-                    clearInterval(interval);
-                    this.setEventsByTime = eventWithMinTime.timeToFinish;
-                    observer.trigger(eventWithMinTime.eventName);
-                    this.deleteEvent(eventWithMinTime.eventName);
-                }
-                console.log('countdown', countdown);
-            }, 1000);
         },
 
         callCallbackBeforeEvent(seconds, callback) {
@@ -91,22 +98,30 @@ const calendar = (function () {
             });
         },
 
-        subscribe(eventName, callback) {
-            observer.subscribe(eventName, callback);
-        },
-
-        trigger(eventName) {
-            observer.trigger(eventName);
-        },
-
         get getEvents () {
             return events;
         },
 
         set setEventsByTime (secondsLeft) {
             events.forEach(event => event.timeToFinish = event.timeToFinish - secondsLeft);
+        },
+
+        subscribe(eventName, func) {
+            observer.subscribe(eventName, func);
+        },
+
+        unsubscribeFunc(func) {
+            observer.unsubscribeFunc(func);
+        },
+
+        unsubscribe(key) {
+            observer.unsubscribe(key);
+        },
+
+        trigger(eventName) {
+            observer.trigger(eventName);
         }
     };
 }());
 
-export default calendar;
+export default calendarEvents;
