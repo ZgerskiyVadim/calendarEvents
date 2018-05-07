@@ -299,81 +299,32 @@ var _runCallbackBeforeEvent2 = _interopRequireDefault(_runCallbackBeforeEvent);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var anotherTestFunc = function anotherTestFunc() {
+    console.log('Another test function');
+};
+
 var testFunc = function testFunc() {
-    console.log('TEST FUNc');
+    console.log('Test function');
 };
 
-var testFunc1 = function testFunc1() {
-    console.log('TEST FUNc11111111111');
-};
-
-function ky() {
-    console.log('KY');
+function hey() {
+    console.log('HELLO');
 }
 
-// calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
+_runCallbackBeforeEvent2.default.forAllEvents(5, testFunc);
+_runCallbackBeforeEvent2.default.forAllEvents(15, hey);
 
-// repeatEvent.everyDay('kek', '04.05.2018', '19:34:00', ky);
-
-_runCallbackBeforeEvent2.default.forAllEvents(5, testFunc1);
-_runCallbackBeforeEvent2.default.forAllEvents(15, ky);
-
-_runCallbackBeforeEvent2.default.byEventName('aaa', 20, testFunc);
-_runCallbackBeforeEvent2.default.byEventName('min', 17, testFunc);
+_runCallbackBeforeEvent2.default.byEventName('aaa', 20, anotherTestFunc);
+_runCallbackBeforeEvent2.default.byEventName('min', 17, anotherTestFunc);
 
 _calendarEvents2.default.createEvent('min', '07.05.2018', '17:07:00', function () {
-    console.log('ZDAROVA');
+    console.log('HEY');
 });
 _calendarEvents2.default.createEvent('aaa', '07.05.2018', '17:07:21', function () {
-    console.log('KEK');
+    console.log('I`m glad to see you!');
 });
 
-// setTimeout(() => {
-//     calendarEvents.deleteEvent('min');
-// }, 4000);
-// setTimeout(() => {
-//     calendarEvents.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
-//     calendarEvents.deleteEvent('1');
-// }, 3000);
-
-
-// calendarEvents.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
-
-// repeatEvent.everyDay('kek', '03.05.2018', '18:37:30', ky);
-//
-//
-// setTimeout(() => {
-//     calendarEvents.changeEvent('lol', '03.05.2018', '18:37:20', ky);
-// }, 1000);
-
-
-// setTimeout(() => {
-//     console.log('DELETE');
-//     calendarEvents.deleteEvent('kek');
-// }, 10000);
-
-
-// calendarEvents.createEvent('2', '03.05.2018', '15:29:25', testFunc);
-
-// calendarEvents.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
-// calendarEvents.deleteEvent('eventName');
-
-// GET EVENT PER PERIOD ------------------------------------------------------------------
-
-// console.log('getEvents.perDay(3)', getEvents.perDay(3));
-// console.log('getEvents.perMonth(5)', getEvents.perMonth(5));
-// console.log('getEvents.perWeek(1)', getEvents.perWeek(1));
-// console.log('getEvents.perPeriod', getEvents.perPeriod('02.05.2018', '03.05.2018'));
-
-// REPEAT EVENT------------------------------------------------------------------
-
-// repeatEvent.everySelectedDay('hell', '03.05.2018', '12:55:00', function () {
-//     console.log('REPEAT');
-// }, 3, 6 , 8);
-
-// repeatEvent.everyDay('KEk', '02.05.2018', '18:06:30', function () {
-//     console.log('KY');
-// });
+console.log(_getEventsForPeriod2.default.perWeek(2));
 
 /***/ }),
 /* 3 */
@@ -566,8 +517,8 @@ exports.default = function () {
             _calendarEvents2.default.createEvent(eventName, date, time, callback);
 
             _calendarEvents2.default.subscribe(eventName, function () {
-                var dateOfnextDay = getDateOfNewDay(1);
-                _calendarEvents2.default.createEvent(eventName, dateOfnextDay.date, dateOfnextDay.time, callback);
+                var dateOfNewDay = getDateOfNewDay(1);
+                _calendarEvents2.default.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback);
             });
         },
         everySelectedDay: function everySelectedDay(eventName, date, time, callback) {
@@ -579,8 +530,8 @@ exports.default = function () {
 
             _calendarEvents2.default.subscribe(eventName, function () {
                 var countOfDays = countOfDaysToClosetsDayOfWeek(selectedDays);
-                var dateOfnextDay = getDateOfNewDay(countOfDays);
-                _calendarEvents2.default.createEvent(eventName, dateOfnextDay.date, dateOfnextDay.time, callback);
+                var dateOfNewDay = getDateOfNewDay(countOfDays);
+                _calendarEvents2.default.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback);
             });
         }
     };
