@@ -84,16 +84,16 @@ var _observer2 = _interopRequireDefault(_observer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var calendarEvents = function () {
+exports.default = function () {
     var observer = new _observer2.default();
     var events = [];
     var interval = void 0;
     var countdown = 0;
     var secondsLeft = 0;
 
-    function checkValidOfTime(newEvent) {
+    function startTimer(newEvent) {
         if (newEvent.timeToFinish > 0) {
-            calendarEvents.subscribe(newEvent.eventName, newEvent.callback);
+            this.subscribe(newEvent.eventName, newEvent.callback);
             startAndRefreshTimer();
         } else {
             console.error('Please enter valid date');
@@ -103,35 +103,43 @@ var calendarEvents = function () {
 
     function startAndRefreshTimer() {
         clearInterval(interval);
-        var eventWithMinTime = events.length ? _helper2.default.minValueOfTime(events) : {};
+        var closestEvent = events.length ? _helper2.default.minValueOfTime(events) : {};
 
-        if (eventWithMinTime.timeToFinish) {
-            eventWithMinTime.isActive = true;
-            triggerSetInterval(eventWithMinTime);
+        if (closestEvent.timeToFinish) {
+            closestEvent.isActive = true;
+            triggerSetInterval(closestEvent);
         }
     }
 
-    function triggerSetInterval(eventWithMinTime) {
-        countdown = eventWithMinTime.timeToFinish;
+    function triggerSetInterval(closestEvent) {
+        var _this = this;
+
+        countdown = closestEvent.timeToFinish;
 
         interval = setInterval(function () {
             countdown = countdown - 1;
             secondsLeft = secondsLeft + 1;
-            calendarEvents.trigger('countdown');
+            _this.trigger('countdown');
 
             if (countdown <= 0) {
                 secondsLeft = 0;
                 clearInterval(interval);
-                eventWithMinTime.callback();
-                calendarEvents.setEventsByTime = eventWithMinTime.timeToFinish;
-                calendarEvents.unsubscribeFunc(eventWithMinTime.callback);
-                deleteEventFromArray(eventWithMinTime);
+                closestEvent.callback();
+                setEventsByTime(closestEvent.timeToFinish);
+                _this.unsubscribeFunc(closestEvent.callback);
+                deleteEventFromArray(closestEvent);
 
-                calendarEvents.trigger(eventWithMinTime.eventName);
+                _this.trigger(closestEvent.eventName);
                 startAndRefreshTimer();
             }
             console.log('countdown', countdown);
         }, 1000);
+    }
+
+    function setEventsByTime(secondsLeft) {
+        events.forEach(function (event) {
+            return event.timeToFinish = event.timeToFinish - secondsLeft;
+        });
     }
 
     function deleteEventFromArray(chosenEvent) {
@@ -143,7 +151,7 @@ var calendarEvents = function () {
     return {
         createEvent: function createEvent(eventName, date, time, callback) {
             var newDate = _helper2.default.newDate(date, time);
-            var timeToFinish = _helper2.default.getTimeInSeconds(newDate);
+            var timeToFinish = _helper2.default.calculateDateDifference(newDate);
             var newEvent = {
                 eventName: eventName,
                 timeToFinish: timeToFinish,
@@ -152,32 +160,32 @@ var calendarEvents = function () {
             };
 
             events.push(newEvent);
-            checkValidOfTime(newEvent);
-            console.table(events);
+            startTimer(newEvent);
         },
         changeEvent: function changeEvent(eventName, date, time, callback) {
-            var _this = this;
+            var _this2 = this;
 
             events.forEach(function (event) {
                 if (event.callback === callback) {
                     var newDate = _helper2.default.newDate(date, time);
-                    var timeToFinish = _helper2.default.getTimeInSeconds(newDate);
-                    _this.setEventsByTime = secondsLeft;
-                    calendarEvents.subscriberUpdateKey(event.eventName, eventName);
+                    var timeToFinish = _helper2.default.calculateDateDifference(newDate);
+                    setEventsByTime(secondsLeft);
+                    _this2.subscriberUpdateKey(event.eventName, eventName);
+                    _this2.unsubscribeFunc(event.callback);
                     event.isActive = false;
                     event = Object.assign(event, { eventName: eventName, timeToFinish: timeToFinish, newDate: newDate });
-                    checkValidOfTime(event);
+                    startTimer(event);
                 }
             });
         },
         deleteEvent: function deleteEvent(eventName) {
-            var _this2 = this;
+            var _this3 = this;
 
             events.forEach(function (event, index) {
                 if (event.eventName === eventName) {
-                    calendarEvents.unsubscribe(event.eventName);
+                    _this3.unsubscribe(event.eventName);
                     events.splice(index, 1);
-                    _this2.setEventsByTime = secondsLeft;
+                    setEventsByTime(secondsLeft);
                     startAndRefreshTimer();
                 }
             });
@@ -186,12 +194,6 @@ var calendarEvents = function () {
 
         get getEvents() {
             return events;
-        },
-
-        set setEventsByTime(secondsLeft) {
-            events.forEach(function (event) {
-                return event.timeToFinish = event.timeToFinish - secondsLeft;
-            });
         },
 
         get getCountDown() {
@@ -216,8 +218,6 @@ var calendarEvents = function () {
     };
 }();
 
-exports.default = calendarEvents;
-
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -232,7 +232,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = function () {
 
     return {
-        getTimeInSeconds: function getTimeInSeconds(newDate) {
+        calculateDateDifference: function calculateDateDifference(newDate) {
             var nowDate = new Date().getTime();
             var chosenDate = newDate.getTime();
             return parseInt((chosenDate - nowDate) / 1000);
@@ -311,20 +311,16 @@ function hey() {
     console.log('HELLO');
 }
 
-_runCallbackBeforeEvent2.default.forAllEvents(5, testFunc);
-_runCallbackBeforeEvent2.default.forAllEvents(15, hey);
-
-_runCallbackBeforeEvent2.default.byEventName('aaa', 20, anotherTestFunc);
-_runCallbackBeforeEvent2.default.byEventName('min', 17, anotherTestFunc);
-
-_calendarEvents2.default.createEvent('min', '07.05.2018', '17:07:00', function () {
-    console.log('HEY');
-});
-_calendarEvents2.default.createEvent('aaa', '07.05.2018', '17:07:21', function () {
-    console.log('I`m glad to see you!');
-});
-
-console.log(_getEventsForPeriod2.default.perWeek(2));
+// runCallbackBeforeEvent.forAllEvents(5, testFunc);
+// runCallbackBeforeEvent.forAllEvents(15, hey);
+//
+// runCallbackBeforeEvent.byEventName('aaa', 20, anotherTestFunc);
+// runCallbackBeforeEvent.byEventName('min', 17, anotherTestFunc);
+//
+// calendarEvents.createEvent('min', '07.05.2018', '17:07:00', ()=> {console.log('HEY');});
+// calendarEvents.createEvent('aaa', '07.05.2018', '17:07:21', ()=> {console.log('I`m glad to see you!');});
+//
+// console.log(getEvents.perWeek(2));
 
 /***/ }),
 /* 3 */

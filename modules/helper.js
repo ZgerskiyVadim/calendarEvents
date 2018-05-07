@@ -1,7 +1,7 @@
 export default (function () {
 
     return {
-        getTimeInSeconds (newDate) {
+        calculateDateDifference (newDate) {
             const nowDate = new Date().getTime();
             const chosenDate = newDate.getTime();
             return parseInt((chosenDate - nowDate) / 1000);
