@@ -69,7 +69,6 @@ const calendarEvents = (function () {
 
             events.push(newEvent);
             checkValidOfTime(newEvent);
-            console.table(events);
         },
 
         changeEvent(eventName, date, time, callback) {
