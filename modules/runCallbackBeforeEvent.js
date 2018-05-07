@@ -1,6 +1,6 @@
 import calendarEvents from './calendarEvents';
 
-const runCallbackBeforeEvent = (function () {
+export default (function () {
 
     return {
         forAllEvents (secondsBeforeCallEvent, callback) {
@@ -12,5 +12,3 @@ const runCallbackBeforeEvent = (function () {
         }
     };
 }());
-
-export default runCallbackBeforeEvent;

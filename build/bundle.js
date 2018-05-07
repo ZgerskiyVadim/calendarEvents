@@ -84,9 +84,8 @@ var _observer2 = _interopRequireDefault(_observer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var observer = new _observer2.default();
-
 var calendarEvents = function () {
+    var observer = new _observer2.default();
     var events = [];
     var interval = void 0;
     var countdown = 0;
@@ -116,8 +115,9 @@ var calendarEvents = function () {
 
         interval = setInterval(function () {
             countdown = countdown - 1;
-            calendarEvents.trigger('countdown');
             secondsLeft = secondsLeft + 1;
+            calendarEvents.trigger('countdown');
+
             if (countdown <= 0) {
                 secondsLeft = 0;
                 clearInterval(interval);
@@ -162,7 +162,7 @@ var calendarEvents = function () {
                     var newDate = _helper2.default.newDate(date, time);
                     var timeToFinish = _helper2.default.getTimeInSeconds(newDate);
                     _this.setEventsByTime = secondsLeft;
-                    observer.updateKey(event.eventName, eventName);
+                    calendarEvents.subscriberUpdateKey(event.eventName, eventName);
                     event = Object.assign(event, { eventName: eventName, timeToFinish: timeToFinish, newDate: newDate });
                     checkValidOfTime(event);
                 }
@@ -173,7 +173,7 @@ var calendarEvents = function () {
 
             events.forEach(function (event, index) {
                 if (event.eventName === eventName) {
-                    observer.unsubscribe(event.eventName);
+                    calendarEvents.unsubscribe(event.eventName);
                     events.splice(index, 1);
                     _this2.setEventsByTime = secondsLeft;
                     startAndRefreshTimer();
@@ -199,11 +199,14 @@ var calendarEvents = function () {
         subscribe: function subscribe(eventName, func) {
             observer.subscribe(eventName, func);
         },
+        unsubscribe: function unsubscribe(key) {
+            observer.unsubscribe(key);
+        },
         unsubscribeFunc: function unsubscribeFunc(func) {
             observer.unsubscribeFunc(func);
         },
-        unsubscribe: function unsubscribe(key) {
-            observer.unsubscribe(key);
+        subscriberUpdateKey: function subscriberUpdateKey(currentKey, newKey) {
+            observer.updateKey(currentKey, newKey);
         },
         trigger: function trigger(eventName) {
             observer.trigger(eventName);
@@ -313,12 +316,14 @@ function ky() {
 _runCallbackBeforeEvent2.default.forAllEvents(5, testFunc1);
 _runCallbackBeforeEvent2.default.forAllEvents(15, ky);
 
-_calendarEvents2.default.createEvent('min', '07.05.2018', '12:47:00', function () {
+_calendarEvents2.default.createEvent('min', '07.05.2018', '16:30:00', function () {
     console.log('ZDAROVA');
 });
-_calendarEvents2.default.createEvent('aaa', '07.05.2018', '12:47:20', function () {
+_calendarEvents2.default.createEvent('aaa', '11.06.2018', '16:30:20', function () {
     console.log('KEK');
 });
+
+console.log(_getEventsForPeriod2.default.perWeek(3));
 
 // setTimeout(() => {
 //     calendarEvents.deleteEvent('min');
@@ -406,9 +411,9 @@ var Observable = function () {
         }
     }, {
         key: "updateKey",
-        value: function updateKey(prevKey, newKey) {
+        value: function updateKey(currentKey, newKey) {
             this.observers.forEach(function (subscriber) {
-                subscriber.key === prevKey && (subscriber.key = newKey);
+                return subscriber.key === currentKey && (subscriber.key = newKey);
             });
         }
     }, {
@@ -467,7 +472,7 @@ var _helper2 = _interopRequireDefault(_helper);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var getEvents = function () {
+exports.default = function () {
     return {
         perDay: function perDay(dayNumber) {
             return _calendarEvents2.default.getEvents.filter(function (event) {
@@ -476,7 +481,12 @@ var getEvents = function () {
         },
         perWeek: function perWeek(weekNumber) {
             return _calendarEvents2.default.getEvents.filter(function (event) {
-                return parseInt(event.newDate.getDate() / 7) === weekNumber - 1;
+                var year = event.newDate.getFullYear();
+                var month = event.newDate.getMonth();
+                var firstWeekDayOfMonth = new Date(year, month).getDay() || 7;
+                var numberOfDayOfMonth = event.newDate.getDate();
+
+                return 8 - firstWeekDayOfMonth + 7 * (weekNumber - 1) >= numberOfDayOfMonth && numberOfDayOfMonth > 8 - firstWeekDayOfMonth + 7 * (weekNumber - 2);
             });
         },
         perMonth: function perMonth(monthNumber) {
@@ -493,8 +503,6 @@ var getEvents = function () {
         }
     };
 }();
-
-exports.default = getEvents;
 
 /***/ }),
 /* 5 */
@@ -513,7 +521,7 @@ var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var repeatEvent = function () {
+exports.default = function () {
     var numberOfMonthInYear = 12;
     var daysInWeek = 7;
 
@@ -575,8 +583,6 @@ var repeatEvent = function () {
     };
 }();
 
-exports.default = repeatEvent;
-
 /***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -594,7 +600,7 @@ var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var runCallbackBeforeEvent = function () {
+exports.default = function () {
 
     return {
         forAllEvents: function forAllEvents(secondsBeforeCallEvent, callback) {
@@ -606,8 +612,6 @@ var runCallbackBeforeEvent = function () {
         }
     };
 }();
-
-exports.default = runCallbackBeforeEvent;
 
 /***/ })
 /******/ ]);

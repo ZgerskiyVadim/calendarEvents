@@ -1,9 +1,9 @@
 import helperModule from './helper';
 import Observable from './observer';
 
-const observer = new Observable();
 
 const calendarEvents = (function () {
+    const observer = new Observable();
     let events = [];
     let interval;
     let countdown = 0;
@@ -33,8 +33,9 @@ const calendarEvents = (function () {
 
         interval = setInterval(() => {
             countdown = countdown - 1;
-            calendarEvents.trigger('countdown');
             secondsLeft = secondsLeft + 1;
+            calendarEvents.trigger('countdown');
+
             if (countdown <= 0) {
                 secondsLeft = 0;
                 clearInterval(interval);
@@ -76,7 +77,7 @@ const calendarEvents = (function () {
                     const newDate = helperModule.newDate(date, time);
                     const timeToFinish = helperModule.getTimeInSeconds(newDate);
                     this.setEventsByTime = secondsLeft;
-                    observer.updateKey(event.eventName, eventName);
+                    calendarEvents.subscriberUpdateKey(event.eventName, eventName);
                     event = Object.assign(event, {eventName, timeToFinish, newDate});
                     checkValidOfTime(event);
                 }
@@ -86,7 +87,7 @@ const calendarEvents = (function () {
         deleteEvent(eventName) {
             events.forEach((event, index) => {
                 if(event.eventName === eventName) {
-                    observer.unsubscribe(event.eventName);
+                    calendarEvents.unsubscribe(event.eventName);
                     events.splice(index, 1);
                     this.setEventsByTime = secondsLeft;
                     startAndRefreshTimer();
@@ -110,12 +111,16 @@ const calendarEvents = (function () {
             observer.subscribe(eventName, func);
         },
 
+        unsubscribe(key) {
+            observer.unsubscribe(key);
+        },
+
         unsubscribeFunc(func) {
             observer.unsubscribeFunc(func);
         },
 
-        unsubscribe(key) {
-            observer.unsubscribe(key);
+        subscriberUpdateKey(currentKey, newKey) {
+            observer.updateKey(currentKey, newKey);
         },
 
         trigger(eventName) {

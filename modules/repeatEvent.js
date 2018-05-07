@@ -1,7 +1,7 @@
 import calendarEvents from './calendarEvents';
 
 
-const repeatEvent = (function () {
+export default (function () {
     const numberOfMonthInYear = 12;
     const daysInWeek = 7;
 
@@ -60,5 +60,3 @@ const repeatEvent = (function () {
         }
     };
 }());
-
-export default repeatEvent;
