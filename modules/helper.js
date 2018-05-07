@@ -1,7 +1,6 @@
 export default (function () {
 
     return {
-
         getTimeInSeconds (newDate) {
             const nowDate = new Date().getTime();
             const chosenDate = newDate.getTime();

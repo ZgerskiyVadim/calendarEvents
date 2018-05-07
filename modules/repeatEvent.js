@@ -44,8 +44,8 @@ export default (function () {
             calendarEvents.createEvent(eventName, date, time, callback);
 
             calendarEvents.subscribe(eventName, function () {
-                const dateOfnextDay = getDateOfNewDay(1);
-                calendarEvents.createEvent(eventName, dateOfnextDay.date, dateOfnextDay.time, callback);
+                const dateOfNewDay = getDateOfNewDay(1);
+                calendarEvents.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback);
             });
         },
 
@@ -54,8 +54,8 @@ export default (function () {
 
             calendarEvents.subscribe(eventName, function () {
                 const countOfDays = countOfDaysToClosetsDayOfWeek(selectedDays);
-                const dateOfnextDay = getDateOfNewDay(countOfDays);
-                calendarEvents.createEvent(eventName, dateOfnextDay.date, dateOfnextDay.time, callback);
+                const dateOfNewDay = getDateOfNewDay(countOfDays);
+                calendarEvents.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback);
             });
         }
     };
