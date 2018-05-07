@@ -1,6 +1,7 @@
-import calendar from './modules/calendarEvents';
+import calendarEvents from './modules/calendarEvents';
 import getEvents from './modules/getEventsForPeriod';
 import repeatEvent from './modules/repeatEvent';
+import runCallbackBeforeEvent from './modules/runCallbackBeforeEvent';
 
 
 const testFunc = () => {
@@ -17,39 +18,45 @@ function ky() {
 
 // calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
 
-repeatEvent.everyDay('kek', '04.05.2018', '19:34:00', ky);
-calendar.createEvent('min', '04.05.2018', '19:34:10', testFunc);
+// repeatEvent.everyDay('kek', '04.05.2018', '19:34:00', ky);
+
+runCallbackBeforeEvent.forAllEvents(5, testFunc1);
+runCallbackBeforeEvent.forAllEvents(15, ky);
+
+calendarEvents.createEvent('min', '07.05.2018', '12:47:00', ()=> {console.log('ZDAROVA');});
+calendarEvents.createEvent('aaa', '07.05.2018', '12:47:20', ()=> {console.log('KEK');});
+
 
 // setTimeout(() => {
-//     calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
-//     calendar.deleteEvent('1');
+//     calendarEvents.deleteEvent('min');
+// }, 4000);
+// setTimeout(() => {
+//     calendarEvents.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
+//     calendarEvents.deleteEvent('1');
 // }, 3000);
 
 
-// calendar.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
+// calendarEvents.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
 
 // repeatEvent.everyDay('kek', '03.05.2018', '18:37:30', ky);
 //
 //
 // setTimeout(() => {
-//     calendar.changeEvent('lol', '03.05.2018', '18:37:20', ky);
+//     calendarEvents.changeEvent('lol', '03.05.2018', '18:37:20', ky);
 // }, 1000);
 
 
 
 // setTimeout(() => {
 //     console.log('DELETE');
-//     calendar.deleteEvent('kek');
+//     calendarEvents.deleteEvent('kek');
 // }, 10000);
 
 
-// calendar.createEvent('2', '03.05.2018', '15:29:25', testFunc);
-calendar.callCallbackBeforeEvent(4, function () {
-    console.log('CALLLBACK');
-});
+// calendarEvents.createEvent('2', '03.05.2018', '15:29:25', testFunc);
 
-// calendar.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
-// calendar.deleteEvent('eventName');
+// calendarEvents.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
+// calendarEvents.deleteEvent('eventName');
 
 // GET EVENT PER PERIOD ------------------------------------------------------------------
 

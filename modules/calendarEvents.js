@@ -15,8 +15,7 @@ const calendarEvents = (function () {
             startAndRefreshTimer();
         } else {
             console.error('Please enter valid date');
-            const events = calendarEvents.getEvents;
-            events.forEach((event, index) => (event.name === newEvent.name) && events.splice(index, 1));
+            deleteEventFromArray(newEvent);
         }
     }
 
@@ -31,8 +30,10 @@ const calendarEvents = (function () {
 
     function triggerSetInterval(eventWithMinTime) {
         countdown = eventWithMinTime.timeToFinish;
+
         interval = setInterval(() => {
             countdown = countdown - 1;
+            calendarEvents.trigger('countdown');
             secondsLeft = secondsLeft + 1;
             if (countdown <= 0) {
                 secondsLeft = 0;
@@ -40,15 +41,17 @@ const calendarEvents = (function () {
                 eventWithMinTime.callback();
                 calendarEvents.setEventsByTime = eventWithMinTime.timeToFinish;
                 calendarEvents.unsubscribeFunc(eventWithMinTime.callback);
-                //ydalit` event iz massiva вынести в отдельную функцию
-                events.forEach((event, index) => (event.eventName === eventWithMinTime.eventName) && events.splice(index, 1));
+                deleteEventFromArray(eventWithMinTime);
 
                 calendarEvents.trigger(eventWithMinTime.eventName);
                 startAndRefreshTimer();
-
             }
             console.log('countdown', countdown);
         }, 1000);
+    }
+
+    function deleteEventFromArray(chosenEvent) {
+        events.forEach((event, index) => (event.eventName === chosenEvent.eventName) && events.splice(index, 1));
     }
 
     return {
@@ -85,15 +88,8 @@ const calendarEvents = (function () {
                 if(event.eventName === eventName) {
                     observer.unsubscribe(event.eventName);
                     events.splice(index, 1);
+                    this.setEventsByTime = secondsLeft;
                     startAndRefreshTimer();
-                }
-            });
-        },
-
-        callCallbackBeforeEvent(seconds, callback) {
-            setInterval(() => {
-                if (countdown === seconds) {
-                    callback();
                 }
             });
         },
@@ -104,6 +100,10 @@ const calendarEvents = (function () {
 
         set setEventsByTime (secondsLeft) {
             events.forEach(event => event.timeToFinish = event.timeToFinish - secondsLeft);
+        },
+
+        get getCountDown () {
+            return countdown;
         },
 
         subscribe(eventName, func) {

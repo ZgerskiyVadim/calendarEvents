@@ -29,7 +29,7 @@ class Observable {
         this.observers.forEach(subscriber => {
             subscriber.funcs.forEach((f, index) => {
                 (f === func) && (subscriber.funcs.splice(index, 1));
-                subscriber.funcs.length && this.unsubscribe(subscriber.key);
+                !subscriber.funcs.length && this.unsubscribe(subscriber.key);
             });
         });
     }

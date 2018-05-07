@@ -98,10 +98,7 @@ var calendarEvents = function () {
             startAndRefreshTimer();
         } else {
             console.error('Please enter valid date');
-            var _events = calendarEvents.getEvents;
-            _events.forEach(function (event, index) {
-                return event.name === newEvent.name && _events.splice(index, 1);
-            });
+            deleteEventFromArray(newEvent);
         }
     }
 
@@ -116,8 +113,10 @@ var calendarEvents = function () {
 
     function triggerSetInterval(eventWithMinTime) {
         countdown = eventWithMinTime.timeToFinish;
+
         interval = setInterval(function () {
             countdown = countdown - 1;
+            calendarEvents.trigger('countdown');
             secondsLeft = secondsLeft + 1;
             if (countdown <= 0) {
                 secondsLeft = 0;
@@ -125,16 +124,19 @@ var calendarEvents = function () {
                 eventWithMinTime.callback();
                 calendarEvents.setEventsByTime = eventWithMinTime.timeToFinish;
                 calendarEvents.unsubscribeFunc(eventWithMinTime.callback);
-                //ydalit` event iz massiva вынести в отдельную функцию
-                events.forEach(function (event, index) {
-                    return event.eventName === eventWithMinTime.eventName && events.splice(index, 1);
-                });
+                deleteEventFromArray(eventWithMinTime);
 
                 calendarEvents.trigger(eventWithMinTime.eventName);
                 startAndRefreshTimer();
             }
             console.log('countdown', countdown);
         }, 1000);
+    }
+
+    function deleteEventFromArray(chosenEvent) {
+        events.forEach(function (event, index) {
+            return event.eventName === chosenEvent.eventName && events.splice(index, 1);
+        });
     }
 
     return {
@@ -167,18 +169,14 @@ var calendarEvents = function () {
             });
         },
         deleteEvent: function deleteEvent(eventName) {
+            var _this2 = this;
+
             events.forEach(function (event, index) {
                 if (event.eventName === eventName) {
                     observer.unsubscribe(event.eventName);
                     events.splice(index, 1);
+                    _this2.setEventsByTime = secondsLeft;
                     startAndRefreshTimer();
-                }
-            });
-        },
-        callCallbackBeforeEvent: function callCallbackBeforeEvent(seconds, callback) {
-            setInterval(function () {
-                if (countdown === seconds) {
-                    callback();
                 }
             });
         },
@@ -192,6 +190,10 @@ var calendarEvents = function () {
             events.forEach(function (event) {
                 return event.timeToFinish = event.timeToFinish - secondsLeft;
             });
+        },
+
+        get getCountDown() {
+            return countdown;
         },
 
         subscribe: function subscribe(eventName, func) {
@@ -286,6 +288,10 @@ var _repeatEvent = __webpack_require__(5);
 
 var _repeatEvent2 = _interopRequireDefault(_repeatEvent);
 
+var _runCallbackBeforeEvent = __webpack_require__(6);
+
+var _runCallbackBeforeEvent2 = _interopRequireDefault(_runCallbackBeforeEvent);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var testFunc = function testFunc() {
@@ -302,38 +308,47 @@ function ky() {
 
 // calendar.createEvent('min', '28.04.2018', '15:16:00', testFunc);
 
-_repeatEvent2.default.everyDay('kek', '04.05.2018', '19:34:00', ky);
-_calendarEvents2.default.createEvent('min', '04.05.2018', '19:34:10', testFunc);
+// repeatEvent.everyDay('kek', '04.05.2018', '19:34:00', ky);
+
+_runCallbackBeforeEvent2.default.forAllEvents(5, testFunc1);
+_runCallbackBeforeEvent2.default.forAllEvents(15, ky);
+
+_calendarEvents2.default.createEvent('min', '07.05.2018', '12:47:00', function () {
+    console.log('ZDAROVA');
+});
+_calendarEvents2.default.createEvent('aaa', '07.05.2018', '12:47:20', function () {
+    console.log('KEK');
+});
 
 // setTimeout(() => {
-//     calendar.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
-//     calendar.deleteEvent('1');
+//     calendarEvents.deleteEvent('min');
+// }, 4000);
+// setTimeout(() => {
+//     calendarEvents.changeEvent('1', '02.05.2018', '17:24:30', testFunc1);
+//     calendarEvents.deleteEvent('1');
 // }, 3000);
 
 
-// calendar.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
+// calendarEvents.createEvent('3', '03.05.2018', '15:29:23', testFunc1);
 
 // repeatEvent.everyDay('kek', '03.05.2018', '18:37:30', ky);
 //
 //
 // setTimeout(() => {
-//     calendar.changeEvent('lol', '03.05.2018', '18:37:20', ky);
+//     calendarEvents.changeEvent('lol', '03.05.2018', '18:37:20', ky);
 // }, 1000);
 
 
 // setTimeout(() => {
 //     console.log('DELETE');
-//     calendar.deleteEvent('kek');
+//     calendarEvents.deleteEvent('kek');
 // }, 10000);
 
 
-// calendar.createEvent('2', '03.05.2018', '15:29:25', testFunc);
-_calendarEvents2.default.callCallbackBeforeEvent(4, function () {
-    console.log('CALLLBACK');
-});
+// calendarEvents.createEvent('2', '03.05.2018', '15:29:25', testFunc);
 
-// calendar.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
-// calendar.deleteEvent('eventName');
+// calendarEvents.changeEvent('eventName', '28.04.2018', '16:30:00', function newFunc() {});
+// calendarEvents.deleteEvent('eventName');
 
 // GET EVENT PER PERIOD ------------------------------------------------------------------
 
@@ -411,7 +426,7 @@ var Observable = function () {
             this.observers.forEach(function (subscriber) {
                 subscriber.funcs.forEach(function (f, index) {
                     f === func && subscriber.funcs.splice(index, 1);
-                    subscriber.funcs.length && _this.unsubscribe(subscriber.key);
+                    !subscriber.funcs.length && _this.unsubscribe(subscriber.key);
                 });
             });
         }
@@ -498,18 +513,53 @@ var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var secondsInDay = 86400 * 1000;
-var numberOfMonthInYear = 12;
-
 var repeatEvent = function () {
+    var numberOfMonthInYear = 12;
+    var daysInWeek = 7;
+
+    // console.log('HELLO', getDateOfNewDay(countOfDaysToClosetsDayOfWeek([1, 2])));
+    // console.log(getDateOfNewDay(1));
+
+    function countOfDaysToClosetsDayOfWeek(selectedDays) {
+        var currentDayOfWeek = new Date().getDay();
+
+        return selectedDays.map(function (selectedDay) {
+            return selectedDay - currentDayOfWeek < 0 ? daysInWeek - (currentDayOfWeek - selectedDay) : selectedDay - currentDayOfWeek ? selectedDay - currentDayOfWeek : daysInWeek;
+        }).reduce(function (prev, curr) {
+            return prev < curr ? prev : curr;
+        });
+    }
+
+    function getDateOfNewDay(addDaysBeforeTriggerEvent) {
+        var year = new Date().getFullYear();
+        var month = new Date().getMonth() + 1;
+        var daysInCurrentMonth = new Date(year, month, 0).getDate();
+        var day = new Date().getDate();
+
+        day = day + addDaysBeforeTriggerEvent;
+
+        if (day > daysInCurrentMonth) {
+            day = day - daysInCurrentMonth;
+            month = month + 1;
+        }
+        if (month > numberOfMonthInYear) {
+            month = 1;
+            year = year + 1;
+        }
+
+        return {
+            'date': day + '.' + month + '.' + year,
+            'time': new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds()
+        };
+    }
 
     return {
         everyDay: function everyDay(eventName, date, time, callback) {
             _calendarEvents2.default.createEvent(eventName, date, time, callback);
 
-            _calendarEvents2.default.subscribe(eventName, function KYRVA() {
-                var nextDay = getDateOfNewDay(1);
-                _calendarEvents2.default.createEvent(eventName, nextDay.date, nextDay.time, callback);
+            _calendarEvents2.default.subscribe(eventName, function () {
+                var dateOfnextDay = getDateOfNewDay(1);
+                _calendarEvents2.default.createEvent(eventName, dateOfnextDay.date, dateOfnextDay.time, callback);
             });
         },
         everySelectedDay: function everySelectedDay(eventName, date, time, callback) {
@@ -517,78 +567,50 @@ var repeatEvent = function () {
                 selectedDays[_key - 4] = arguments[_key];
             }
 
-            var timeToFinish = getTimeInSecondsToClosestSelectedDay(selectedDays);
-            _calendarEvents2.default.subscribe(eventName, function () {
-                timeoutForEverySelectedDay(selectedDays, timeToFinish, callback);
-            });
             _calendarEvents2.default.createEvent(eventName, date, time, callback);
+
+            _calendarEvents2.default.subscribe(eventName, function () {
+                var countOfDays = countOfDaysToClosetsDayOfWeek(selectedDays);
+                var dateOfnextDay = getDateOfNewDay(countOfDays);
+                _calendarEvents2.default.createEvent(eventName, dateOfnextDay.date, dateOfnextDay.time, callback);
+            });
         }
     };
 }();
 
-function getDateOfNewDay(addDaysBeforeTriggerEvent) {
-    var year = new Date().getFullYear();
-    var month = new Date().getMonth() + 1;
-    var daysInCurrentMonth = new Date(year, month, 0).getDate();
-    var day = new Date().getDate();
+exports.default = repeatEvent;
 
-    // day = day + addDaysBeforeTriggerEvent;
-    //
-    // if (day >  daysInCurrentMonth) {
-    //     day = day - daysInCurrentMonth;
-    //     month = month + 1;
-    // }
-    // if (month > numberOfMonthInYear) {
-    //     month = 1;
-    //     year = year + 1;
-    // }
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _calendarEvents = __webpack_require__(0);
+
+var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var runCallbackBeforeEvent = function () {
 
     return {
-        'date': day + '.' + month + '.' + year,
-        'time': new Date().getHours() + ':' + new Date().getMinutes() + ':' + (new Date().getSeconds() + 4)
-    };
-}
-
-console.log(getDateOfNewDay(1));
-
-function timeoutForEverySelectedDay(selectedDays, timeToFinish, callback) {
-    setTimeout(function () {
-        callback();
-        timeToFinish = getTimeInSecondsToClosestSelectedDay(selectedDays);
-        timeoutForEverySelectedDay(selectedDays, timeToFinish, callback);
-    }, timeToFinish);
-}
-
-function getTimeInSecondsToClosestSelectedDay(selectedDays) {
-    selectedDays = selectedDays.map(function (day) {
-        return day === 0 ? day + 7 : day;
-    });
-    var daysBeforeSelectedDay = getDaysToClosestSelectedDay(selectedDays);
-    return secondsInDay * daysBeforeSelectedDay;
-}
-
-function getDaysToClosestSelectedDay(selectedDays) {
-    var currentYear = new Date().getFullYear();
-    var currentMonth = new Date().getMonth() + 1;
-    var daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
-    var currentWeekDay = new Date().getDay();
-    var currentMonthDay = new Date().getDate();
-
-    var closestDayOfMonth = selectedDays.map(function (selectedWeekDay) {
-        var dayInMonth = selectedWeekDay - currentWeekDay + currentMonthDay;
-        if (dayInMonth - currentMonthDay <= 0) {
-            return dayInMonth + 7 <= daysInCurrentMonth ? dayInMonth + 7 : dayInMonth + 7 - daysInCurrentMonth;
-        } else {
-            return dayInMonth > daysInCurrentMonth ? dayInMonth - daysInCurrentMonth : dayInMonth;
+        forAllEvents: function forAllEvents(secondsBeforeCallEvent, callback) {
+            _calendarEvents2.default.subscribe('countdown', function () {
+                if (_calendarEvents2.default.getCountDown === secondsBeforeCallEvent) {
+                    callback();
+                }
+            });
         }
-    }).reduce(function (prev, curr) {
-        return prev < curr ? prev : curr;
-    });
+    };
+}();
 
-    return closestDayOfMonth - currentMonthDay;
-}
-
-exports.default = repeatEvent;
+exports.default = runCallbackBeforeEvent;
 
 /***/ })
 /******/ ]);
