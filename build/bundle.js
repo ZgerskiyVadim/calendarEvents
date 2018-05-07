@@ -517,9 +517,6 @@ var repeatEvent = function () {
     var numberOfMonthInYear = 12;
     var daysInWeek = 7;
 
-    // console.log('HELLO', getDateOfNewDay(countOfDaysToClosetsDayOfWeek([1, 2])));
-    // console.log(getDateOfNewDay(1));
-
     function countOfDaysToClosetsDayOfWeek(selectedDays) {
         var currentDayOfWeek = new Date().getDay();
 
