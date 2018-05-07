@@ -106,6 +106,7 @@ var calendarEvents = function () {
         var eventWithMinTime = events.length ? _helper2.default.minValueOfTime(events) : {};
 
         if (eventWithMinTime.timeToFinish) {
+            eventWithMinTime.isActive = true;
             triggerSetInterval(eventWithMinTime);
         }
     }
@@ -163,6 +164,7 @@ var calendarEvents = function () {
                     var timeToFinish = _helper2.default.getTimeInSeconds(newDate);
                     _this.setEventsByTime = secondsLeft;
                     calendarEvents.subscriberUpdateKey(event.eventName, eventName);
+                    event.isActive = false;
                     event = Object.assign(event, { eventName: eventName, timeToFinish: timeToFinish, newDate: newDate });
                     checkValidOfTime(event);
                 }
@@ -316,14 +318,15 @@ function ky() {
 _runCallbackBeforeEvent2.default.forAllEvents(5, testFunc1);
 _runCallbackBeforeEvent2.default.forAllEvents(15, ky);
 
-_calendarEvents2.default.createEvent('min', '07.05.2018', '16:30:00', function () {
+_runCallbackBeforeEvent2.default.byEventName('aaa', 20, testFunc);
+_runCallbackBeforeEvent2.default.byEventName('min', 17, testFunc);
+
+_calendarEvents2.default.createEvent('min', '07.05.2018', '17:07:00', function () {
     console.log('ZDAROVA');
 });
-_calendarEvents2.default.createEvent('aaa', '11.06.2018', '16:30:20', function () {
+_calendarEvents2.default.createEvent('aaa', '07.05.2018', '17:07:21', function () {
     console.log('KEK');
 });
-
-console.log(_getEventsForPeriod2.default.perWeek(3));
 
 // setTimeout(() => {
 //     calendarEvents.deleteEvent('min');
@@ -606,6 +609,16 @@ exports.default = function () {
         forAllEvents: function forAllEvents(secondsBeforeCallEvent, callback) {
             _calendarEvents2.default.subscribe('countdown', function () {
                 if (_calendarEvents2.default.getCountDown === secondsBeforeCallEvent) {
+                    callback();
+                }
+            });
+        },
+        byEventName: function byEventName(eventName, secondsBeforeCallEvent, callback) {
+            _calendarEvents2.default.subscribe('countdown', function () {
+                var activeEvent = _calendarEvents2.default.getEvents.filter(function (event) {
+                    return event.isActive;
+                });
+                if (_calendarEvents2.default.getCountDown === secondsBeforeCallEvent && eventName === activeEvent[0].eventName) {
                     callback();
                 }
             });

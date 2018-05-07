@@ -23,10 +23,12 @@ function ky() {
 runCallbackBeforeEvent.forAllEvents(5, testFunc1);
 runCallbackBeforeEvent.forAllEvents(15, ky);
 
-calendarEvents.createEvent('min', '07.05.2018', '16:30:00', ()=> {console.log('ZDAROVA');});
-calendarEvents.createEvent('aaa', '11.06.2018', '16:30:20', ()=> {console.log('KEK');});
+runCallbackBeforeEvent.byEventName('aaa', 20, testFunc);
+runCallbackBeforeEvent.byEventName('min', 17, testFunc);
 
-console.log(getEvents.perWeek(3));
+calendarEvents.createEvent('min', '07.05.2018', '17:07:00', ()=> {console.log('ZDAROVA');});
+calendarEvents.createEvent('aaa', '07.05.2018', '17:07:21', ()=> {console.log('KEK');});
+
 
 // setTimeout(() => {
 //     calendarEvents.deleteEvent('min');

@@ -24,6 +24,7 @@ const calendarEvents = (function () {
         const eventWithMinTime = events.length ? helperModule.minValueOfTime(events) : {};
 
         if (eventWithMinTime.timeToFinish) {
+            eventWithMinTime.isActive = true;
             triggerSetInterval(eventWithMinTime);
         }
     }
@@ -78,6 +79,7 @@ const calendarEvents = (function () {
                     const timeToFinish = helperModule.getTimeInSeconds(newDate);
                     this.setEventsByTime = secondsLeft;
                     calendarEvents.subscriberUpdateKey(event.eventName, eventName);
+                    event.isActive = false;
                     event = Object.assign(event, {eventName, timeToFinish, newDate});
                     checkValidOfTime(event);
                 }
