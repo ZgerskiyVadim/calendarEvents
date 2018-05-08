@@ -364,8 +364,8 @@ function hey() {
     console.log('HELLO');
 }
 
-// calendarEvents.createEvent('min', '08.05.2018', '18:47:40', hey, 1);
-// calendarEvents.createEvent('aaa', '08.05.2018', '18:47:50', testFunc, 2);
+// calendarEvents.createEvent('min', '08.05.2018', '18:56:40', hey, 1);
+// calendarEvents.createEvent('aaa', '08.05.2018', '18:56:50', testFunc, 2);
 
 /***/ }),
 /* 3 */
@@ -468,6 +468,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 exports.default = function () {
 
+    function lastDayOfWeek(numberOfWeek) {
+        var year = event.newDate.getFullYear();
+        var month = event.newDate.getMonth();
+        var firstWeekDayOfMonth = new Date(year, month).getDay() || _constants.sunday;
+
+        return _constants.daysInWeek - firstWeekDayOfMonth + 1 + _constants.daysInWeek * numberOfWeek;
+    }
+
     return {
         perDay: function perDay(dayNumber) {
             if (!_helper2.default.isNumber(dayNumber)) return (0, _throwError2.default)('Please enter number of day when 1 - monday and 7 - sunday');
@@ -477,13 +485,11 @@ exports.default = function () {
         },
         perWeek: function perWeek(weekNumber) {
             if (!_helper2.default.isNumber(weekNumber)) return (0, _throwError2.default)('Please enter number of week when 1 - first week');
+            var chosenWeek = weekNumber - 1;
+            var lastWeek = chosenWeek - 1;
             return _calendarEvents2.default.getEvents.filter(function (event) {
-                var year = event.newDate.getFullYear();
-                var month = event.newDate.getMonth();
-                var firstWeekDayOfMonth = new Date(year, month).getDay() || _constants.sunday;
-                var numberOfDayOfMonth = event.newDate.getDate();
-
-                return 8 - firstWeekDayOfMonth + _constants.daysInWeek * (weekNumber - 1) >= numberOfDayOfMonth && numberOfDayOfMonth > 8 - firstWeekDayOfMonth + _constants.daysInWeek * (weekNumber - 2);
+                var dayOfMonth = event.newDate.getDate();
+                return lastDayOfWeek(chosenWeek) >= dayOfMonth && dayOfMonth > lastDayOfWeek(lastWeek);
             });
         },
         perMonth: function perMonth(monthNumber) {

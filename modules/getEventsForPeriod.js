@@ -6,6 +6,14 @@ import helperModule from './helper';
 
 export default (function () {
 
+    function lastDayOfWeek(numberOfWeek) {
+        const year = event.newDate.getFullYear();
+        const month = event.newDate.getMonth();
+        const firstWeekDayOfMonth = new Date(year, month).getDay() || sunday;
+
+        return ((daysInWeek - firstWeekDayOfMonth + 1) + (daysInWeek * numberOfWeek));
+    }
+
     return {
         perDay(dayNumber) {
             if (!helperModule.isNumber(dayNumber)) return throwError('Please enter number of day when 1 - monday and 7 - sunday');
@@ -14,13 +22,11 @@ export default (function () {
 
         perWeek(weekNumber) {
             if (!helperModule.isNumber(weekNumber)) return throwError('Please enter number of week when 1 - first week');
+            const chosenWeek = weekNumber - 1;
+            const lastWeek = chosenWeek - 1;
             return calendarEvents.getEvents.filter(event => {
-                const year = event.newDate.getFullYear();
-                const month = event.newDate.getMonth();
-                const firstWeekDayOfMonth = new Date(year, month).getDay() || sunday;
-                const numberOfDayOfMonth = event.newDate.getDate();
-
-                return ((8 - firstWeekDayOfMonth) + (daysInWeek * (weekNumber - 1)) >= numberOfDayOfMonth) && (numberOfDayOfMonth > (8 - firstWeekDayOfMonth) + (daysInWeek * (weekNumber - 2)));
+                const dayOfMonth = event.newDate.getDate();
+                return (lastDayOfWeek(chosenWeek) >= dayOfMonth) && (dayOfMonth > lastDayOfWeek(lastWeek));
             });
         },
 

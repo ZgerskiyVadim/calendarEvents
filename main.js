@@ -16,5 +16,5 @@ function hey() {
     console.log('HELLO');
 }
 
-// calendarEvents.createEvent('min', '08.05.2018', '18:47:40', hey, 1);
-// calendarEvents.createEvent('aaa', '08.05.2018', '18:47:50', testFunc, 2);
+// calendarEvents.createEvent('min', '08.05.2018', '18:56:40', hey, 1);
+// calendarEvents.createEvent('aaa', '08.05.2018', '18:56:50', testFunc, 2);
