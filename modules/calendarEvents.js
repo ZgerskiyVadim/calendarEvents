@@ -1,8 +1,9 @@
 import helperModule from './helper';
 import Observable from './observer';
+import { COUNTDOWN } from '../constants';
 
 
-export default (function () {
+const calendarEvents = (function () {
     const observer = new Observable();
     let events = [];
     let interval;
@@ -11,11 +12,11 @@ export default (function () {
 
     function startTimer(newEvent) {
         if (newEvent.timeToFinish > 0) {
-            this.subscribe(newEvent.eventName, newEvent.callback);
+            calendarEvents.subscribe(newEvent.eventName, newEvent.callback);
             startAndRefreshTimer();
         } else {
             console.error('Please enter valid date');
-            deleteEventFromArray(newEvent);
+            deleteEventByName(newEvent.eventName);
         }
     }
 
@@ -35,17 +36,17 @@ export default (function () {
         interval = setInterval(() => {
             countdown = countdown - 1;
             secondsLeft = secondsLeft + 1;
-            this.trigger('countdown');
+            calendarEvents.trigger(COUNTDOWN);
 
             if (countdown <= 0) {
                 secondsLeft = 0;
                 clearInterval(interval);
                 closestEvent.callback();
                 setEventsByTime(closestEvent.timeToFinish);
-                this.unsubscribeFunc(closestEvent.callback);
-                deleteEventFromArray(closestEvent);
+                calendarEvents.unsubscribeFunc(closestEvent.callback);
+                deleteEventByName(closestEvent.eventName);
 
-                this.trigger(closestEvent.eventName);
+                calendarEvents.trigger(closestEvent.eventName);
                 startAndRefreshTimer();
             }
             console.log('countdown', countdown);
@@ -56,8 +57,8 @@ export default (function () {
         events.forEach(event => event.timeToFinish = event.timeToFinish - secondsLeft);
     }
 
-    function deleteEventFromArray(chosenEvent) {
-        events.forEach((event, index) => (event.eventName === chosenEvent.eventName) && events.splice(index, 1));
+    function deleteEventByName(eventName) {
+        events.forEach((event, index) => (event.eventName === eventName) && events.splice(index, 1));
     }
 
     return {
@@ -130,3 +131,5 @@ export default (function () {
         }
     };
 }());
+
+export default calendarEvents;

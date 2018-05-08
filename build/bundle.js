@@ -82,9 +82,11 @@ var _observer = __webpack_require__(3);
 
 var _observer2 = _interopRequireDefault(_observer);
 
+var _constants = __webpack_require__(7);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = function () {
+var calendarEvents = function () {
     var observer = new _observer2.default();
     var events = [];
     var interval = void 0;
@@ -93,11 +95,11 @@ exports.default = function () {
 
     function startTimer(newEvent) {
         if (newEvent.timeToFinish > 0) {
-            this.subscribe(newEvent.eventName, newEvent.callback);
+            calendarEvents.subscribe(newEvent.eventName, newEvent.callback);
             startAndRefreshTimer();
         } else {
             console.error('Please enter valid date');
-            deleteEventFromArray(newEvent);
+            deleteEventByName(newEvent.eventName);
         }
     }
 
@@ -112,24 +114,22 @@ exports.default = function () {
     }
 
     function triggerSetInterval(closestEvent) {
-        var _this = this;
-
         countdown = closestEvent.timeToFinish;
 
         interval = setInterval(function () {
             countdown = countdown - 1;
             secondsLeft = secondsLeft + 1;
-            _this.trigger('countdown');
+            calendarEvents.trigger(_constants.COUNTDOWN);
 
             if (countdown <= 0) {
                 secondsLeft = 0;
                 clearInterval(interval);
                 closestEvent.callback();
                 setEventsByTime(closestEvent.timeToFinish);
-                _this.unsubscribeFunc(closestEvent.callback);
-                deleteEventFromArray(closestEvent);
+                calendarEvents.unsubscribeFunc(closestEvent.callback);
+                deleteEventByName(closestEvent.eventName);
 
-                _this.trigger(closestEvent.eventName);
+                calendarEvents.trigger(closestEvent.eventName);
                 startAndRefreshTimer();
             }
             console.log('countdown', countdown);
@@ -142,9 +142,9 @@ exports.default = function () {
         });
     }
 
-    function deleteEventFromArray(chosenEvent) {
+    function deleteEventByName(eventName) {
         events.forEach(function (event, index) {
-            return event.eventName === chosenEvent.eventName && events.splice(index, 1);
+            return event.eventName === eventName && events.splice(index, 1);
         });
     }
 
@@ -163,15 +163,15 @@ exports.default = function () {
             startTimer(newEvent);
         },
         changeEvent: function changeEvent(eventName, date, time, callback) {
-            var _this2 = this;
+            var _this = this;
 
             events.forEach(function (event) {
                 if (event.callback === callback) {
                     var newDate = _helper2.default.newDate(date, time);
                     var timeToFinish = _helper2.default.calculateDateDifference(newDate);
                     setEventsByTime(secondsLeft);
-                    _this2.subscriberUpdateKey(event.eventName, eventName);
-                    _this2.unsubscribeFunc(event.callback);
+                    _this.subscriberUpdateKey(event.eventName, eventName);
+                    _this.unsubscribeFunc(event.callback);
                     event.isActive = false;
                     event = Object.assign(event, { eventName: eventName, timeToFinish: timeToFinish, newDate: newDate });
                     startTimer(event);
@@ -179,11 +179,11 @@ exports.default = function () {
             });
         },
         deleteEvent: function deleteEvent(eventName) {
-            var _this3 = this;
+            var _this2 = this;
 
             events.forEach(function (event, index) {
                 if (event.eventName === eventName) {
-                    _this3.unsubscribe(event.eventName);
+                    _this2.unsubscribe(event.eventName);
                     events.splice(index, 1);
                     setEventsByTime(secondsLeft);
                     startAndRefreshTimer();
@@ -217,6 +217,8 @@ exports.default = function () {
         }
     };
 }();
+
+exports.default = calendarEvents;
 
 /***/ }),
 /* 1 */
@@ -548,20 +550,22 @@ var _calendarEvents = __webpack_require__(0);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
+var _constants = __webpack_require__(7);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function () {
 
     return {
         forAllEvents: function forAllEvents(secondsBeforeCallEvent, callback) {
-            _calendarEvents2.default.subscribe('countdown', function () {
+            _calendarEvents2.default.subscribe(_constants.COUNTDOWN, function () {
                 if (_calendarEvents2.default.getCountDown === secondsBeforeCallEvent) {
                     callback();
                 }
             });
         },
         byEventName: function byEventName(eventName, secondsBeforeCallEvent, callback) {
-            _calendarEvents2.default.subscribe('countdown', function () {
+            _calendarEvents2.default.subscribe(_constants.COUNTDOWN, function () {
                 var activeEvent = _calendarEvents2.default.getEvents.filter(function (event) {
                     return event.isActive;
                 });
@@ -572,6 +576,18 @@ exports.default = function () {
         }
     };
 }();
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var COUNTDOWN = exports.COUNTDOWN = 'countdown';
 
 /***/ })
 /******/ ]);
