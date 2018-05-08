@@ -15,10 +15,6 @@ class Observable {
         }
     }
 
-    updateKey(currentKey, newKey) {
-        this.observers.forEach(subscriber => (subscriber.key === currentKey) && (subscriber.key = newKey));
-    }
-
     unsubscribe (key) {
         this.observers = this.observers.filter(subscriber => subscriber.key !== key);
     }

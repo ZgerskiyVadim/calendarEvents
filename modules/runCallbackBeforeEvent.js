@@ -1,5 +1,6 @@
-import calendarEvents from './calendarEvents';
 import { COUNTDOWN } from '../constants';
+import calendarEvents from './calendarEvents';
+
 
 export default (function () {
 
@@ -12,10 +13,10 @@ export default (function () {
             });
         },
 
-        byEventName (eventName, secondsBeforeCallEvent, callback) {
+        byEventId (id, secondsBeforeCallEvent, callback) {
             calendarEvents.subscribe(COUNTDOWN, () => {
                 const activeEvent = calendarEvents.getEvents.filter(event => event.isActive);
-                if (calendarEvents.getCountDown === secondsBeforeCallEvent && eventName === activeEvent[0].eventName) {
+                if (calendarEvents.getCountDown === secondsBeforeCallEvent && id === activeEvent[0].id) {
                     callback();
                 }
             });

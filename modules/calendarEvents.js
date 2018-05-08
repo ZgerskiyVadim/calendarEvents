@@ -1,6 +1,7 @@
+import throwError from '../throwError';
+import { COUNTDOWN } from '../constants';
 import helperModule from './helper';
 import Observable from './observer';
-import { COUNTDOWN } from '../constants';
 
 
 const calendarEvents = (function () {
@@ -12,11 +13,11 @@ const calendarEvents = (function () {
 
     function startTimer(newEvent) {
         if (newEvent.timeToFinish > 0) {
-            calendarEvents.subscribe(newEvent.eventName, newEvent.callback);
+            calendarEvents.subscribe(newEvent.id, newEvent.callback);
             startAndRefreshTimer();
         } else {
-            console.error('Please enter valid date');
-            deleteEventByName(newEvent.eventName);
+            throwError('You can`t enter past date');
+            events.forEach((event, index) => (event.id === newEvent.id) && events.splice(index, 1));
         }
     }
 
@@ -41,12 +42,12 @@ const calendarEvents = (function () {
             if (countdown <= 0) {
                 secondsLeft = 0;
                 clearInterval(interval);
+                closestEvent.isFinished = true;
                 closestEvent.callback();
                 setEventsByTime(closestEvent.timeToFinish);
                 calendarEvents.unsubscribeFunc(closestEvent.callback);
-                deleteEventByName(closestEvent.eventName);
 
-                calendarEvents.trigger(closestEvent.eventName);
+                calendarEvents.trigger(closestEvent.id);
                 startAndRefreshTimer();
             }
             console.log('countdown', countdown);
@@ -54,19 +55,17 @@ const calendarEvents = (function () {
     }
 
     function setEventsByTime(secondsLeft) {
-        events.forEach(event => event.timeToFinish = event.timeToFinish - secondsLeft);
-    }
-
-    function deleteEventByName(eventName) {
-        events.forEach((event, index) => (event.eventName === eventName) && events.splice(index, 1));
+        events.forEach(event => !event.isFinished && (event.timeToFinish = event.timeToFinish - secondsLeft));
     }
 
     return {
-        createEvent(eventName, date, time, callback) {
+        createEvent(eventName, date, time, callback, id) {
             const newDate = helperModule.newDate(date, time);
+            if (!helperModule.dataIsValid(eventName, newDate, callback)) return;
             const timeToFinish = helperModule.calculateDateDifference(newDate);
             const newEvent = {
                 eventName,
+                id: id || helperModule.generateId(),
                 timeToFinish,
                 newDate,
                 callback
@@ -76,13 +75,13 @@ const calendarEvents = (function () {
             startTimer(newEvent);
         },
 
-        changeEvent(eventName, date, time, callback) {
+        changeEvent(id, eventName, date, time) {
             events.forEach(event => {
-                if(event.callback === callback) {
+                if(event.id === id && !event.isFinished) {
                     const newDate = helperModule.newDate(date, time);
+                    if (!helperModule.dataIsValid(eventName, newDate)) return;
                     const timeToFinish = helperModule.calculateDateDifference(newDate);
                     setEventsByTime(secondsLeft);
-                    this.subscriberUpdateKey(event.eventName, eventName);
                     this.unsubscribeFunc(event.callback);
                     event.isActive = false;
                     event = Object.assign(event, {eventName, timeToFinish, newDate});
@@ -91,10 +90,10 @@ const calendarEvents = (function () {
             });
         },
 
-        deleteEvent(eventName) {
+        deleteEvent(id) {
             events.forEach((event, index) => {
-                if(event.eventName === eventName) {
-                    this.unsubscribe(event.eventName);
+                if(event.id === id && !event.isFinished) {
+                    this.unsubscribe(event.id);
                     events.splice(index, 1);
                     setEventsByTime(secondsLeft);
                     startAndRefreshTimer();
@@ -110,8 +109,8 @@ const calendarEvents = (function () {
             return countdown;
         },
 
-        subscribe(eventName, func) {
-            observer.subscribe(eventName, func);
+        subscribe(key, func) {
+            observer.subscribe(key, func);
         },
 
         unsubscribe(key) {
@@ -122,12 +121,8 @@ const calendarEvents = (function () {
             observer.unsubscribeFunc(func);
         },
 
-        subscriberUpdateKey(currentKey, newKey) {
-            observer.updateKey(currentKey, newKey);
-        },
-
-        trigger(eventName) {
-            observer.trigger(eventName);
+        trigger(key) {
+            observer.trigger(key);
         }
     };
 }());

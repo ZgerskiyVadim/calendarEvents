@@ -74,6 +74,12 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _throwError = __webpack_require__(8);
+
+var _throwError2 = _interopRequireDefault(_throwError);
+
+var _constants = __webpack_require__(7);
+
 var _helper = __webpack_require__(1);
 
 var _helper2 = _interopRequireDefault(_helper);
@@ -81,8 +87,6 @@ var _helper2 = _interopRequireDefault(_helper);
 var _observer = __webpack_require__(3);
 
 var _observer2 = _interopRequireDefault(_observer);
-
-var _constants = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -95,11 +99,13 @@ var calendarEvents = function () {
 
     function startTimer(newEvent) {
         if (newEvent.timeToFinish > 0) {
-            calendarEvents.subscribe(newEvent.eventName, newEvent.callback);
+            calendarEvents.subscribe(newEvent.id, newEvent.callback);
             startAndRefreshTimer();
         } else {
-            console.error('Please enter valid date');
-            deleteEventByName(newEvent.eventName);
+            (0, _throwError2.default)('You can`t enter past date');
+            events.forEach(function (event, index) {
+                return event.id === newEvent.id && events.splice(index, 1);
+            });
         }
     }
 
@@ -124,12 +130,12 @@ var calendarEvents = function () {
             if (countdown <= 0) {
                 secondsLeft = 0;
                 clearInterval(interval);
+                closestEvent.isFinished = true;
                 closestEvent.callback();
                 setEventsByTime(closestEvent.timeToFinish);
                 calendarEvents.unsubscribeFunc(closestEvent.callback);
-                deleteEventByName(closestEvent.eventName);
 
-                calendarEvents.trigger(closestEvent.eventName);
+                calendarEvents.trigger(closestEvent.id);
                 startAndRefreshTimer();
             }
             console.log('countdown', countdown);
@@ -138,22 +144,18 @@ var calendarEvents = function () {
 
     function setEventsByTime(secondsLeft) {
         events.forEach(function (event) {
-            return event.timeToFinish = event.timeToFinish - secondsLeft;
-        });
-    }
-
-    function deleteEventByName(eventName) {
-        events.forEach(function (event, index) {
-            return event.eventName === eventName && events.splice(index, 1);
+            return !event.isFinished && (event.timeToFinish = event.timeToFinish - secondsLeft);
         });
     }
 
     return {
-        createEvent: function createEvent(eventName, date, time, callback) {
+        createEvent: function createEvent(eventName, date, time, callback, id) {
             var newDate = _helper2.default.newDate(date, time);
+            if (!_helper2.default.dataIsValid(eventName, newDate, callback)) return;
             var timeToFinish = _helper2.default.calculateDateDifference(newDate);
             var newEvent = {
                 eventName: eventName,
+                id: id || _helper2.default.generateId(),
                 timeToFinish: timeToFinish,
                 newDate: newDate,
                 callback: callback
@@ -162,15 +164,15 @@ var calendarEvents = function () {
             events.push(newEvent);
             startTimer(newEvent);
         },
-        changeEvent: function changeEvent(eventName, date, time, callback) {
+        changeEvent: function changeEvent(id, eventName, date, time) {
             var _this = this;
 
             events.forEach(function (event) {
-                if (event.callback === callback) {
+                if (event.id === id && !event.isFinished) {
                     var newDate = _helper2.default.newDate(date, time);
+                    if (!_helper2.default.dataIsValid(eventName, newDate)) return;
                     var timeToFinish = _helper2.default.calculateDateDifference(newDate);
                     setEventsByTime(secondsLeft);
-                    _this.subscriberUpdateKey(event.eventName, eventName);
                     _this.unsubscribeFunc(event.callback);
                     event.isActive = false;
                     event = Object.assign(event, { eventName: eventName, timeToFinish: timeToFinish, newDate: newDate });
@@ -178,12 +180,12 @@ var calendarEvents = function () {
                 }
             });
         },
-        deleteEvent: function deleteEvent(eventName) {
+        deleteEvent: function deleteEvent(id) {
             var _this2 = this;
 
             events.forEach(function (event, index) {
-                if (event.eventName === eventName) {
-                    _this2.unsubscribe(event.eventName);
+                if (event.id === id && !event.isFinished) {
+                    _this2.unsubscribe(event.id);
                     events.splice(index, 1);
                     setEventsByTime(secondsLeft);
                     startAndRefreshTimer();
@@ -200,8 +202,8 @@ var calendarEvents = function () {
             return countdown;
         },
 
-        subscribe: function subscribe(eventName, func) {
-            observer.subscribe(eventName, func);
+        subscribe: function subscribe(key, func) {
+            observer.subscribe(key, func);
         },
         unsubscribe: function unsubscribe(key) {
             observer.unsubscribe(key);
@@ -209,11 +211,8 @@ var calendarEvents = function () {
         unsubscribeFunc: function unsubscribeFunc(func) {
             observer.unsubscribeFunc(func);
         },
-        subscriberUpdateKey: function subscriberUpdateKey(currentKey, newKey) {
-            observer.updateKey(currentKey, newKey);
-        },
-        trigger: function trigger(eventName) {
-            observer.trigger(eventName);
+        trigger: function trigger(key) {
+            observer.trigger(key);
         }
     };
 }();
@@ -231,29 +230,42 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _throwError = __webpack_require__(8);
+
+var _throwError2 = _interopRequireDefault(_throwError);
+
+var _constants = __webpack_require__(7);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 exports.default = function () {
 
     return {
         calculateDateDifference: function calculateDateDifference(newDate) {
             var nowDate = new Date().getTime();
             var chosenDate = newDate.getTime();
-            return parseInt((chosenDate - nowDate) / 1000);
+            return parseInt((chosenDate - nowDate) / _constants.miliseconds);
         },
         newDate: function newDate(date, time) {
             var parsedDate = this.parseDate(date);
             var parsedTime = this.parseTime(time);
+            if (!parsedDate || !parsedTime) return;
             return new Date(parsedDate.year, parsedDate.month, parsedDate.day, parsedTime.hour, parsedTime.minute, parsedTime.second);
         },
         minValueOfTime: function minValueOfTime(array) {
-            return array.reduce(function (prev, curr) {
+            return array.filter(function (elem) {
+                return !elem.isFinished;
+            }).reduce(function (prev, curr) {
                 return prev.timeToFinish < curr.timeToFinish ? prev : curr;
             });
         },
         parseDate: function parseDate(date) {
-            var arrayDate = date.split('.');
+            var arrayDate = date ? date.split('.') : [];
+            if (this.dateIsNotValid(arrayDate)) return;
             var day = arrayDate[0];
             var month = arrayDate[1] - 1;
             var year = arrayDate[2];
+            if (day.length > 2 || month.length > 2 || year.length !== 4) return;
 
             return {
                 day: day,
@@ -263,6 +275,7 @@ exports.default = function () {
         },
         parseTime: function parseTime(time) {
             var arrayTime = time ? time.split(':') : [];
+            if (time && this.dateIsNotValid(arrayTime)) return;
             var hour = arrayTime[0] || 0;
             var minute = arrayTime[1] || 0;
             var second = arrayTime[2] || 0;
@@ -272,6 +285,41 @@ exports.default = function () {
                 minute: minute,
                 second: second
             };
+        },
+        generateId: function generateId() {
+            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(2);
+        },
+        dataIsValid: function dataIsValid(eventName, newDate, callback) {
+            if (!this.isString(eventName)) {
+                (0, _throwError2.default)('Event name must be a string');return true;
+            }
+            if (!newDate) {
+                (0, _throwError2.default)('Please enter valid date or time');return true;
+            }
+            if (callback && !this.isFunction(callback)) {
+                (0, _throwError2.default)('Please enter function');return true;
+            }
+        },
+        dateIsNotValid: function dateIsNotValid(arrayOfDate) {
+            return !arrayOfDate.length || arrayOfDate.length !== 3;
+        },
+        selectedDaysIsValid: function selectedDaysIsValid(selectedDays) {
+            var selectedDaysLength = selectedDays.length;
+            for (var i = 0; i < selectedDaysLength; i++) {
+                if (!this.isNumber(selectedDays[i])) {
+                    (0, _throwError2.default)('Selected days must be a number');return false;
+                }
+            }
+        },
+        isNumber: function isNumber(value) {
+            if (value <= 0) return false;
+            return Number.isInteger(value);
+        },
+        isString: function isString(value) {
+            return typeof value === 'string';
+        },
+        isFunction: function isFunction(value) {
+            return typeof value === 'function';
         }
     };
 }();
@@ -362,13 +410,6 @@ var Observable = function () {
             }
         }
     }, {
-        key: "updateKey",
-        value: function updateKey(currentKey, newKey) {
-            this.observers.forEach(function (subscriber) {
-                return subscriber.key === currentKey && (subscriber.key = newKey);
-            });
-        }
-    }, {
         key: "unsubscribe",
         value: function unsubscribe(key) {
             this.observers = this.observers.filter(function (subscriber) {
@@ -414,6 +455,12 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _throwError = __webpack_require__(8);
+
+var _throwError2 = _interopRequireDefault(_throwError);
+
+var _constants = __webpack_require__(7);
+
 var _calendarEvents = __webpack_require__(0);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
@@ -425,30 +472,35 @@ var _helper2 = _interopRequireDefault(_helper);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function () {
+
     return {
         perDay: function perDay(dayNumber) {
+            if (!_helper2.default.isNumber(dayNumber)) return (0, _throwError2.default)('Please enter number of day when 1 - monday and 7 - sunday');
             return _calendarEvents2.default.getEvents.filter(function (event) {
-                return event.newDate.getDay() === dayNumber;
+                return (event.newDate.getDay() || _constants.sunday) === dayNumber;
             });
         },
         perWeek: function perWeek(weekNumber) {
+            if (!_helper2.default.isNumber(weekNumber)) return (0, _throwError2.default)('Please enter number of week when 1 - first week');
             return _calendarEvents2.default.getEvents.filter(function (event) {
                 var year = event.newDate.getFullYear();
                 var month = event.newDate.getMonth();
-                var firstWeekDayOfMonth = new Date(year, month).getDay() || 7;
+                var firstWeekDayOfMonth = new Date(year, month).getDay() || _constants.sunday;
                 var numberOfDayOfMonth = event.newDate.getDate();
 
-                return 8 - firstWeekDayOfMonth + 7 * (weekNumber - 1) >= numberOfDayOfMonth && numberOfDayOfMonth > 8 - firstWeekDayOfMonth + 7 * (weekNumber - 2);
+                return 8 - firstWeekDayOfMonth + _constants.daysInWeek * (weekNumber - 1) >= numberOfDayOfMonth && numberOfDayOfMonth > 8 - firstWeekDayOfMonth + _constants.daysInWeek * (weekNumber - 2);
             });
         },
         perMonth: function perMonth(monthNumber) {
+            if (!_helper2.default.isNumber(monthNumber)) return (0, _throwError2.default)('Please enter number of month when 1 - january and 12 - december');
             return _calendarEvents2.default.getEvents.filter(function (event) {
                 return event.newDate.getMonth() === monthNumber - 1;
             });
         },
         perPeriod: function perPeriod(startPeriod, finishPeriod) {
-            startPeriod = _helper2.default.newDate(startPeriod).getTime();
-            finishPeriod = _helper2.default.newDate(finishPeriod).getTime();
+            startPeriod = _helper2.default.newDate(startPeriod) && _helper2.default.newDate(startPeriod).getTime();
+            finishPeriod = _helper2.default.newDate(finishPeriod) && _helper2.default.newDate(finishPeriod).getTime();
+            if (!startPeriod || !finishPeriod) return (0, _throwError2.default)('Please enter valid date');
             return _calendarEvents2.default.getEvents.filter(function (event) {
                 return event.newDate.getTime() >= startPeriod && event.newDate.getTime() <= finishPeriod;
             });
@@ -467,21 +519,25 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _constants = __webpack_require__(7);
+
 var _calendarEvents = __webpack_require__(0);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
+var _helper = __webpack_require__(1);
+
+var _helper2 = _interopRequireDefault(_helper);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function () {
-    var numberOfMonthInYear = 12;
-    var daysInWeek = 7;
 
-    function countOfDaysToClosetsDayOfWeek(selectedDays) {
+    function calculateCountDaysBeforeSelectedDay(selectedDays) {
         var currentDayOfWeek = new Date().getDay();
 
         return selectedDays.map(function (selectedDay) {
-            return selectedDay - currentDayOfWeek < 0 ? daysInWeek - (currentDayOfWeek - selectedDay) : selectedDay - currentDayOfWeek ? selectedDay - currentDayOfWeek : daysInWeek;
+            return selectedDay - currentDayOfWeek < 0 ? _constants.daysInWeek - (currentDayOfWeek - selectedDay) : selectedDay - currentDayOfWeek ? selectedDay - currentDayOfWeek : _constants.daysInWeek;
         }).reduce(function (prev, curr) {
             return prev < curr ? prev : curr;
         });
@@ -499,7 +555,7 @@ exports.default = function () {
             day = day - daysInCurrentMonth;
             month = month + 1;
         }
-        if (month > numberOfMonthInYear) {
+        if (month > _constants.numberOfMonthInYear) {
             month = 1;
             year = year + 1;
         }
@@ -511,25 +567,28 @@ exports.default = function () {
     }
 
     return {
-        everyDay: function everyDay(eventName, date, time, callback) {
-            _calendarEvents2.default.createEvent(eventName, date, time, callback);
+        everyDay: function everyDay(eventName, date, time, callback, id) {
+            id = id || _helper2.default.generateId();
+            _calendarEvents2.default.createEvent(eventName, date, time, callback, id);
 
-            _calendarEvents2.default.subscribe(eventName, function () {
+            _calendarEvents2.default.subscribe(id, function () {
                 var dateOfNewDay = getDateOfNewDay(1);
-                _calendarEvents2.default.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback);
+                _calendarEvents2.default.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback, id);
             });
         },
-        everySelectedDay: function everySelectedDay(eventName, date, time, callback) {
-            for (var _len = arguments.length, selectedDays = Array(_len > 4 ? _len - 4 : 0), _key = 4; _key < _len; _key++) {
-                selectedDays[_key - 4] = arguments[_key];
+        everySelectedDay: function everySelectedDay(eventName, date, time, callback, id) {
+            for (var _len = arguments.length, selectedDays = Array(_len > 5 ? _len - 5 : 0), _key = 5; _key < _len; _key++) {
+                selectedDays[_key - 5] = arguments[_key];
             }
 
-            _calendarEvents2.default.createEvent(eventName, date, time, callback);
+            id = id || _helper2.default.generateId();
+            if (!_helper2.default.selectedDaysIsValid(selectedDays)) return;
+            _calendarEvents2.default.createEvent(eventName, date, time, callback, id);
 
-            _calendarEvents2.default.subscribe(eventName, function () {
-                var countOfDays = countOfDaysToClosetsDayOfWeek(selectedDays);
+            _calendarEvents2.default.subscribe(id, function () {
+                var countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
                 var dateOfNewDay = getDateOfNewDay(countOfDays);
-                _calendarEvents2.default.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback);
+                _calendarEvents2.default.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback, id);
             });
         }
     };
@@ -546,11 +605,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _constants = __webpack_require__(7);
+
 var _calendarEvents = __webpack_require__(0);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
-
-var _constants = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -564,12 +623,12 @@ exports.default = function () {
                 }
             });
         },
-        byEventName: function byEventName(eventName, secondsBeforeCallEvent, callback) {
+        byEventId: function byEventId(id, secondsBeforeCallEvent, callback) {
             _calendarEvents2.default.subscribe(_constants.COUNTDOWN, function () {
                 var activeEvent = _calendarEvents2.default.getEvents.filter(function (event) {
                     return event.isActive;
                 });
-                if (_calendarEvents2.default.getCountDown === secondsBeforeCallEvent && eventName === activeEvent[0].eventName) {
+                if (_calendarEvents2.default.getCountDown === secondsBeforeCallEvent && id === activeEvent[0].id) {
                     callback();
                 }
             });
@@ -588,6 +647,25 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var COUNTDOWN = exports.COUNTDOWN = 'countdown';
+var daysInWeek = exports.daysInWeek = 7;
+var sunday = exports.sunday = 7;
+var numberOfMonthInYear = exports.numberOfMonthInYear = 12;
+var miliseconds = exports.miliseconds = 1000;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function (message) {
+    console.error(message);
+};
 
 /***/ })
 /******/ ]);

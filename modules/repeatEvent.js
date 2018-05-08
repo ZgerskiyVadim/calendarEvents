@@ -1,11 +1,10 @@
+import { daysInWeek, numberOfMonthInYear } from '../constants';
 import calendarEvents from './calendarEvents';
-
+import helperModule from './helper';
 
 export default (function () {
-    const numberOfMonthInYear = 12;
-    const daysInWeek = 7;
 
-    function countOfDaysToClosetsDayOfWeek(selectedDays) {
+    function calculateCountDaysBeforeSelectedDay(selectedDays) {
         const currentDayOfWeek = new Date().getDay();
 
         return selectedDays
@@ -40,22 +39,25 @@ export default (function () {
     }
 
     return {
-        everyDay(eventName, date, time, callback) {
-            calendarEvents.createEvent(eventName, date, time, callback);
+        everyDay(eventName, date, time, callback, id) {
+            id = id || helperModule.generateId();
+            calendarEvents.createEvent(eventName, date, time, callback, id);
 
-            calendarEvents.subscribe(eventName, function () {
+            calendarEvents.subscribe(id, function () {
                 const dateOfNewDay = getDateOfNewDay(1);
-                calendarEvents.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback);
+                calendarEvents.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback, id);
             });
         },
 
-        everySelectedDay(eventName, date, time, callback, ...selectedDays) {
-            calendarEvents.createEvent(eventName, date, time, callback);
+        everySelectedDay(eventName, date, time, callback, id, ...selectedDays) {
+            id = id || helperModule.generateId();
+            if (!helperModule.selectedDaysIsValid(selectedDays)) return;
+            calendarEvents.createEvent(eventName, date, time, callback, id);
 
-            calendarEvents.subscribe(eventName, function () {
-                const countOfDays = countOfDaysToClosetsDayOfWeek(selectedDays);
+            calendarEvents.subscribe(id, function () {
+                const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
                 const dateOfNewDay = getDateOfNewDay(countOfDays);
-                calendarEvents.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback);
+                calendarEvents.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback, id);
             });
         }
     };
