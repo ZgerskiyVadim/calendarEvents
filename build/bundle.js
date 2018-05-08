@@ -253,9 +253,10 @@ exports.default = function () {
             return new Date(parsedDate.year, parsedDate.month, parsedDate.day, parsedTime.hour, parsedTime.minute, parsedTime.second);
         },
         minValueOfTime: function minValueOfTime(array) {
-            return array.filter(function (elem) {
+            var notFinished = array.filter(function (elem) {
                 return !elem.isFinished;
-            }).reduce(function (prev, curr) {
+            });
+            return notFinished.length && notFinished.reduce(function (prev, curr) {
                 return prev.timeToFinish < curr.timeToFinish ? prev : curr;
             });
         },
@@ -291,14 +292,15 @@ exports.default = function () {
         },
         dataIsValid: function dataIsValid(eventName, newDate, callback) {
             if (!this.isString(eventName)) {
-                (0, _throwError2.default)('Event name must be a string');return true;
+                (0, _throwError2.default)('Event name must be a string');return false;
             }
             if (!newDate) {
-                (0, _throwError2.default)('Please enter valid date or time');return true;
+                (0, _throwError2.default)('Please enter valid date or time');return false;
             }
             if (callback && !this.isFunction(callback)) {
-                (0, _throwError2.default)('Please enter function');return true;
+                (0, _throwError2.default)('Please enter function');return false;
             }
+            return true;
         },
         dateIsNotValid: function dateIsNotValid(arrayOfDate) {
             return !arrayOfDate.length || arrayOfDate.length !== 3;
@@ -310,6 +312,7 @@ exports.default = function () {
                     (0, _throwError2.default)('Selected days must be a number');return false;
                 }
             }
+            return true;
         },
         isNumber: function isNumber(value) {
             if (value <= 0) return false;
@@ -361,16 +364,8 @@ function hey() {
     console.log('HELLO');
 }
 
-// runCallbackBeforeEvent.forAllEvents(5, testFunc);
-// runCallbackBeforeEvent.forAllEvents(15, hey);
-//
-// runCallbackBeforeEvent.byEventName('aaa', 20, anotherTestFunc);
-// runCallbackBeforeEvent.byEventName('min', 17, anotherTestFunc);
-//
-// calendarEvents.createEvent('min', '07.05.2018', '17:07:00', ()=> {console.log('HEY');});
-// calendarEvents.createEvent('aaa', '07.05.2018', '17:07:21', ()=> {console.log('I`m glad to see you!');});
-//
-// console.log(getEvents.perWeek(2));
+// calendarEvents.createEvent('min', '08.05.2018', '18:47:40', hey, 1);
+// calendarEvents.createEvent('aaa', '08.05.2018', '18:47:50', testFunc, 2);
 
 /***/ }),
 /* 3 */

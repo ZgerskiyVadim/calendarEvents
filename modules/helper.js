@@ -18,9 +18,8 @@ export default (function () {
         },
 
         minValueOfTime (array) {
-            return array
-                .filter(elem => !elem.isFinished)
-                .reduce((prev, curr) => prev.timeToFinish < curr.timeToFinish ? prev : curr);
+            const notFinished = array.filter(elem => !elem.isFinished);
+            return notFinished.length && notFinished.reduce((prev, curr) => prev.timeToFinish < curr.timeToFinish ? prev : curr);
         },
 
         parseDate (date) {
@@ -59,9 +58,10 @@ export default (function () {
         },
 
         dataIsValid(eventName, newDate, callback) {
-            if (!this.isString(eventName)) {throwError('Event name must be a string'); return true;}
-            if (!newDate) {throwError('Please enter valid date or time'); return true;}
-            if (callback && !this.isFunction(callback)) {throwError('Please enter function'); return true;}
+            if (!this.isString(eventName)) {throwError('Event name must be a string'); return false;}
+            if (!newDate) {throwError('Please enter valid date or time'); return false;}
+            if (callback && !this.isFunction(callback)) {throwError('Please enter function'); return false;}
+            return true;
         },
 
         dateIsNotValid(arrayOfDate) {
@@ -73,6 +73,7 @@ export default (function () {
             for (let i = 0; i < selectedDaysLength; i++) {
                 if(!this.isNumber(selectedDays[i])) {throwError('Selected days must be a number'); return false;}
             }
+            return true;
         },
 
         isNumber(value) {
