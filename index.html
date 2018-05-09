@@ -3,11 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        .event {
+            display: none;
+            width: 80%;
+            font-size: 24px;
+        }
+        .event div {
+            width: 25%;
+            border: 1px solid black;
+        }
+        .countdown {
+            color: green;
+        }
+    </style>
 </head>
 <body>
 <script src="build/bundle.js"></script>
 
 <h1>Date format: dd.mm.yyyy</h1>
 <h1>Time format: hours:minutes:seconds</h1>
+
+<h1>Countdown: <span class="countdown"></span></h1>
+
+<div class="events">
+    <h1>Events:</h1>
+    <div class="event">
+        <div>id: <span class="id"></span></div>
+        <div>name: <span class="name"></span></div>
+        <div>date: <span class="date"></span></div>
+        <div>time: <span class="time"></span></div>
+    </div>
+</div>
 </body>
 </html>

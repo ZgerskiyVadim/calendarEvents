@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -71,20 +71,37 @@
 
 
 Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var COUNTDOWN = exports.COUNTDOWN = 'countdown';
+var SHOW_EVENTS_IN_HTML = exports.SHOW_EVENTS_IN_HTML = 'showEventsInHtml';
+var daysInWeek = exports.daysInWeek = 7;
+var sunday = exports.sunday = 7;
+var numberOfMonthInYear = exports.numberOfMonthInYear = 12;
+var miliseconds = exports.miliseconds = 1000;
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _throwError = __webpack_require__(8);
+var _throwError = __webpack_require__(2);
 
 var _throwError2 = _interopRequireDefault(_throwError);
 
-var _constants = __webpack_require__(7);
+var _constants = __webpack_require__(0);
 
-var _helper = __webpack_require__(1);
+var _helper = __webpack_require__(3);
 
 var _helper2 = _interopRequireDefault(_helper);
 
-var _observer = __webpack_require__(3);
+var _observer = __webpack_require__(5);
 
 var _observer2 = _interopRequireDefault(_observer);
 
@@ -110,6 +127,9 @@ var calendarEvents = function () {
     }
 
     function startAndRefreshTimer() {
+        setTimeout(function () {
+            calendarEvents.trigger(_constants.SHOW_EVENTS_IN_HTML);
+        }, 40);
         clearInterval(interval);
         var closestEvent = events.length ? _helper2.default.minValueOfTime(events) : {};
 
@@ -220,7 +240,7 @@ var calendarEvents = function () {
 exports.default = calendarEvents;
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -230,11 +250,26 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _throwError = __webpack_require__(8);
+exports.default = function (message) {
+    console.error(message);
+};
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _throwError = __webpack_require__(2);
 
 var _throwError2 = _interopRequireDefault(_throwError);
 
-var _constants = __webpack_require__(7);
+var _constants = __webpack_require__(0);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -328,25 +363,29 @@ exports.default = function () {
 }();
 
 /***/ }),
-/* 2 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _calendarEvents = __webpack_require__(0);
+var _calendarEvents = __webpack_require__(1);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
-var _getEventsForPeriod = __webpack_require__(4);
+var _index = __webpack_require__(6);
+
+var _index2 = _interopRequireDefault(_index);
+
+var _getEventsForPeriod = __webpack_require__(7);
 
 var _getEventsForPeriod2 = _interopRequireDefault(_getEventsForPeriod);
 
-var _repeatEvent = __webpack_require__(5);
+var _repeatEvent = __webpack_require__(8);
 
 var _repeatEvent2 = _interopRequireDefault(_repeatEvent);
 
-var _runCallbackBeforeEvent = __webpack_require__(6);
+var _runCallbackBeforeEvent = __webpack_require__(9);
 
 var _runCallbackBeforeEvent2 = _interopRequireDefault(_runCallbackBeforeEvent);
 
@@ -364,11 +403,17 @@ function hey() {
     console.log('HELLO');
 }
 
-// calendarEvents.createEvent('min', '08.05.2018', '18:56:40', hey, 1);
+_repeatEvent2.default.everyDay('min', '09.05.2018', '16:31:30', hey, 1);
+// setTimeout(() => {
+//     calendarEvents.deleteEvent(1);
+// }, 2000);
+// setTimeout(() => {
+//     calendarEvents.createEvent('min', '09.05.2018', '16:14:40', hey, 1);
+// }, 3000);
 // calendarEvents.createEvent('aaa', '08.05.2018', '18:56:50', testFunc, 2);
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -440,7 +485,88 @@ var Observable = function () {
 exports.default = Observable;
 
 /***/ }),
-/* 4 */
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _calendarEvents = __webpack_require__(1);
+
+var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
+
+var _constants = __webpack_require__(0);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+window.addEventListener('load', function () {
+    var eventsContainer = document.querySelector('.events');
+    var event = eventsContainer.querySelector('.event');
+    _calendarEvents2.default.subscribe(_constants.SHOW_EVENTS_IN_HTML, showEvents);
+
+    function showEvents() {
+        var eventsItems = _calendarEvents2.default.getEvents.map(function (event) {
+            event.time = event.newDate.getHours() + ':' + event.newDate.getMinutes() + ':' + event.newDate.getSeconds();
+            event.date = event.newDate.getDate() + '.' + (event.newDate.getMonth() + 1) + '.' + event.newDate.getFullYear();
+            return event;
+        });
+        event.style.display = 'flex';
+
+        eventsContainer.innerHTML = '<h1>Events:</h1>' + '<h2 class="event">' + '<div>id: <span class="id"></span></div>' + '<div>name: <span class="name"></span></div>' + '<div>date: <span class="date"></span></div>' + '<div>time: <span class="time"></span></div>' + '</h2>';
+
+        addItems(eventsItems);
+        changeBgColor(eventsItems);
+    }
+
+    // Show countdown in html
+    _calendarEvents2.default.subscribe(_constants.COUNTDOWN, function () {
+        var countdown = document.querySelector('.countdown');
+        countdown.innerHTML = _calendarEvents2.default.getCountDown;
+    });
+
+    // Change background for finished events
+    function changeBgColor(eventsItems) {
+        var eventsNotFinished = eventsItems.filter(function (event) {
+            return event.isFinished;
+        });
+        var ids = document.querySelectorAll('.id');
+
+        eventsNotFinished.forEach(function (event) {
+            ids.forEach(function (id) {
+                if (event.id.toString() === id.textContent.toString()) {
+                    var parentContainer = id.parentElement.parentElement;
+                    parentContainer.style.backgroundColor = 'rgba(0, 204, 0, 0.69)';
+                }
+            });
+        });
+    }
+
+    function addItems(items) {
+        var item = event.cloneNode(true);
+        event.style.display = 'none';
+
+        for (var i = 0; i < items.length; i++) {
+            var innerOfItem = elementsInContent(item);
+            innerOfItem.id.innerHTML = items[i].id;
+            innerOfItem.name.innerHTML = items[i].eventName;
+            innerOfItem.date.innerHTML = items[i].date;
+            innerOfItem.time.innerHTML = items[i].time;
+            eventsContainer.appendChild(item);
+            item = item.cloneNode(true);
+        }
+    }
+
+    function elementsInContent(item) {
+        var id = item.querySelector('.id');
+        var name = item.querySelector('.name');
+        var date = item.querySelector('.date');
+        var time = item.querySelector('.time');
+        return { id: id, name: name, date: date, time: time };
+    }
+});
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -450,17 +576,17 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _throwError = __webpack_require__(8);
+var _throwError = __webpack_require__(2);
 
 var _throwError2 = _interopRequireDefault(_throwError);
 
-var _constants = __webpack_require__(7);
+var _constants = __webpack_require__(0);
 
-var _calendarEvents = __webpack_require__(0);
+var _calendarEvents = __webpack_require__(1);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
-var _helper = __webpack_require__(1);
+var _helper = __webpack_require__(3);
 
 var _helper2 = _interopRequireDefault(_helper);
 
@@ -510,7 +636,7 @@ exports.default = function () {
 }();
 
 /***/ }),
-/* 5 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -520,13 +646,13 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _constants = __webpack_require__(7);
+var _constants = __webpack_require__(0);
 
-var _calendarEvents = __webpack_require__(0);
+var _calendarEvents = __webpack_require__(1);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
-var _helper = __webpack_require__(1);
+var _helper = __webpack_require__(3);
 
 var _helper2 = _interopRequireDefault(_helper);
 
@@ -552,18 +678,18 @@ exports.default = function () {
 
         day = day + addDaysBeforeTriggerEvent;
 
-        if (day > daysInCurrentMonth) {
-            day = day - daysInCurrentMonth;
-            month = month + 1;
-        }
-        if (month > _constants.numberOfMonthInYear) {
-            month = 1;
-            year = year + 1;
-        }
+        // if (day >  daysInCurrentMonth) {
+        //     day = day - daysInCurrentMonth;
+        //     month = month + 1;
+        // }
+        // if (month > numberOfMonthInYear) {
+        //     month = 1;
+        //     year = year + 1;
+        // }
 
         return {
             'date': day + '.' + month + '.' + year,
-            'time': new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds()
+            'time': new Date().getHours() + ':' + new Date().getMinutes() + ':' + (new Date().getSeconds() + 4)
         };
     }
 
@@ -573,7 +699,7 @@ exports.default = function () {
             _calendarEvents2.default.createEvent(eventName, date, time, callback, id);
 
             _calendarEvents2.default.subscribe(id, function () {
-                var dateOfNewDay = getDateOfNewDay(1);
+                var dateOfNewDay = getDateOfNewDay(0);
                 _calendarEvents2.default.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback, id);
             });
         },
@@ -596,7 +722,7 @@ exports.default = function () {
 }();
 
 /***/ }),
-/* 6 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -606,9 +732,9 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _constants = __webpack_require__(7);
+var _constants = __webpack_require__(0);
 
-var _calendarEvents = __webpack_require__(0);
+var _calendarEvents = __webpack_require__(1);
 
 var _calendarEvents2 = _interopRequireDefault(_calendarEvents);
 
@@ -636,37 +762,6 @@ exports.default = function () {
         }
     };
 }();
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var COUNTDOWN = exports.COUNTDOWN = 'countdown';
-var daysInWeek = exports.daysInWeek = 7;
-var sunday = exports.sunday = 7;
-var numberOfMonthInYear = exports.numberOfMonthInYear = 12;
-var miliseconds = exports.miliseconds = 1000;
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function (message) {
-    console.error(message);
-};
 
 /***/ })
 /******/ ]);

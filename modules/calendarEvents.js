@@ -1,5 +1,5 @@
 import throwError from '../throwError';
-import { COUNTDOWN } from '../constants';
+import { COUNTDOWN, SHOW_EVENTS_IN_HTML } from '../constants';
 import helperModule from './helper';
 import Observable from './observer';
 
@@ -23,6 +23,7 @@ const calendarEvents = (function () {
 
     function startAndRefreshTimer() {
         clearInterval(interval);
+        setTimeout(() => {calendarEvents.trigger(SHOW_EVENTS_IN_HTML);}, 40);
         const closestEvent = events.length ? helperModule.minValueOfTime(events) : {};
 
         if (closestEvent.timeToFinish) {
