@@ -127,13 +127,13 @@ var calendarEvents = function () {
     }
 
     function startAndRefreshTimer() {
+        clearInterval(interval);
         setTimeout(function () {
             calendarEvents.trigger(_constants.SHOW_EVENTS_IN_HTML);
-        }, 40);
-        clearInterval(interval);
+        }, 50);
         var closestEvent = events.length ? _helper2.default.minValueOfTime(events) : {};
 
-        if (closestEvent.timeToFinish) {
+        if (notFinishedLength()) {
             closestEvent.isActive = true;
             triggerSetInterval(closestEvent);
         }
@@ -151,9 +151,10 @@ var calendarEvents = function () {
                 secondsLeft = 0;
                 clearInterval(interval);
                 closestEvent.isFinished = true;
+                closestEvent.isActive = false;
                 closestEvent.callback();
                 setEventsByTime(closestEvent.timeToFinish);
-                calendarEvents.unsubscribeFunc(closestEvent.callback);
+                calendarEvents.unsubscribeFunc(closestEvent.id, closestEvent.callback);
 
                 calendarEvents.trigger(closestEvent.id);
                 startAndRefreshTimer();
@@ -166,6 +167,12 @@ var calendarEvents = function () {
         events.forEach(function (event) {
             return !event.isFinished && (event.timeToFinish = event.timeToFinish - secondsLeft);
         });
+    }
+
+    function notFinishedLength() {
+        return events.filter(function (event) {
+            return !event.isFinished;
+        }).length;
     }
 
     return {
@@ -193,7 +200,7 @@ var calendarEvents = function () {
                     if (!_helper2.default.dataIsValid(eventName, newDate)) return;
                     var timeToFinish = _helper2.default.calculateDateDifference(newDate);
                     setEventsByTime(secondsLeft);
-                    _this.unsubscribeFunc(event.callback);
+                    _this.unsubscribeFunc(event.id, event.callback);
                     event.isActive = false;
                     event = Object.assign(event, { eventName: eventName, timeToFinish: timeToFinish, newDate: newDate });
                     startTimer(event);
@@ -228,8 +235,8 @@ var calendarEvents = function () {
         unsubscribe: function unsubscribe(key) {
             observer.unsubscribe(key);
         },
-        unsubscribeFunc: function unsubscribeFunc(func) {
-            observer.unsubscribeFunc(func);
+        unsubscribeFunc: function unsubscribeFunc(key, func) {
+            observer.unsubscribeFunc(key, func);
         },
         trigger: function trigger(key) {
             observer.trigger(key);
@@ -403,7 +410,10 @@ function hey() {
     console.log('HELLO');
 }
 
-_repeatEvent2.default.everyDay('min', '09.05.2018', '16:31:30', hey, 1);
+_repeatEvent2.default.everyDay('min', '10.05.2018', '11:30:10', testFunc, 3);
+
+_calendarEvents2.default.createEvent('min', '10.05.2018', '11:30:30', hey, 1);
+_calendarEvents2.default.createEvent('aaa', '10.05.2018', '11:30:40', anotherTestFunc, 2);
 // setTimeout(() => {
 //     calendarEvents.deleteEvent(1);
 // }, 2000);
@@ -458,14 +468,16 @@ var Observable = function () {
         }
     }, {
         key: "unsubscribeFunc",
-        value: function unsubscribeFunc(func) {
+        value: function unsubscribeFunc(key, func) {
             var _this = this;
 
             this.observers.forEach(function (subscriber) {
-                subscriber.funcs.forEach(function (f, index) {
-                    f === func && subscriber.funcs.splice(index, 1);
-                    !subscriber.funcs.length && _this.unsubscribe(subscriber.key);
-                });
+                if (subscriber.key === key) {
+                    subscriber.funcs.forEach(function (f, index) {
+                        f === func && subscriber.funcs.splice(index, 1);
+                        !subscriber.funcs.length && _this.unsubscribe(subscriber.key);
+                    });
+                }
             });
         }
     }, {
@@ -502,13 +514,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 window.addEventListener('load', function () {
     var eventsContainer = document.querySelector('.events');
     var event = eventsContainer.querySelector('.event');
+    var countdown = document.querySelector('.countdown');
     _calendarEvents2.default.subscribe(_constants.SHOW_EVENTS_IN_HTML, showEvents);
 
     function showEvents() {
         var eventsItems = _calendarEvents2.default.getEvents.map(function (event) {
-            event.time = event.newDate.getHours() + ':' + event.newDate.getMinutes() + ':' + event.newDate.getSeconds();
-            event.date = event.newDate.getDate() + '.' + (event.newDate.getMonth() + 1) + '.' + event.newDate.getFullYear();
-            return event;
+            var time = event.newDate.getHours() + ':' + event.newDate.getMinutes() + ':' + event.newDate.getSeconds();
+            var date = event.newDate.getDate() + '.' + (event.newDate.getMonth() + 1) + '.' + event.newDate.getFullYear();
+            var modifyEvent = Object.assign({}, event, { time: time, date: date });
+            return modifyEvent;
         });
         event.style.display = 'flex';
 
@@ -520,21 +534,20 @@ window.addEventListener('load', function () {
 
     // Show countdown in html
     _calendarEvents2.default.subscribe(_constants.COUNTDOWN, function () {
-        var countdown = document.querySelector('.countdown');
         countdown.innerHTML = _calendarEvents2.default.getCountDown;
     });
 
     // Change background for finished events
     function changeBgColor(eventsItems) {
-        var eventsNotFinished = eventsItems.filter(function (event) {
+        var eventsFinished = eventsItems.filter(function (event) {
             return event.isFinished;
         });
-        var ids = document.querySelectorAll('.id');
+        var times = document.querySelectorAll('.time');
 
-        eventsNotFinished.forEach(function (event) {
-            ids.forEach(function (id) {
-                if (event.id.toString() === id.textContent.toString()) {
-                    var parentContainer = id.parentElement.parentElement;
+        eventsFinished.forEach(function (event) {
+            times.forEach(function (time) {
+                if (event.time.toString() === time.textContent.toString()) {
+                    var parentContainer = time.parentElement.parentElement;
                     parentContainer.style.backgroundColor = 'rgba(0, 204, 0, 0.69)';
                 }
             });
@@ -678,18 +691,18 @@ exports.default = function () {
 
         day = day + addDaysBeforeTriggerEvent;
 
-        // if (day >  daysInCurrentMonth) {
-        //     day = day - daysInCurrentMonth;
-        //     month = month + 1;
-        // }
-        // if (month > numberOfMonthInYear) {
-        //     month = 1;
-        //     year = year + 1;
-        // }
+        if (day > daysInCurrentMonth) {
+            day = day - daysInCurrentMonth;
+            month = month + 1;
+        }
+        if (month > _constants.numberOfMonthInYear) {
+            month = 1;
+            year = year + 1;
+        }
 
         return {
             'date': day + '.' + month + '.' + year,
-            'time': new Date().getHours() + ':' + new Date().getMinutes() + ':' + (new Date().getSeconds() + 4)
+            'time': new Date().getHours() + ':' + new Date().getMinutes() + ':' + (new Date().getSeconds() + 1)
         };
     }
 
@@ -699,7 +712,7 @@ exports.default = function () {
             _calendarEvents2.default.createEvent(eventName, date, time, callback, id);
 
             _calendarEvents2.default.subscribe(id, function () {
-                var dateOfNewDay = getDateOfNewDay(0);
+                var dateOfNewDay = getDateOfNewDay(1);
                 _calendarEvents2.default.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback, id);
             });
         },

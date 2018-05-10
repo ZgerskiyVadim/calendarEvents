@@ -34,7 +34,7 @@ export default (function () {
 
         return {
             'date': `${day}.${month}.${year}`,
-            'time': `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
+            'time': `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds() + 1}`
         };
     }
 

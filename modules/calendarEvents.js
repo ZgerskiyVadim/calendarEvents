@@ -23,10 +23,10 @@ const calendarEvents = (function () {
 
     function startAndRefreshTimer() {
         clearInterval(interval);
-        setTimeout(() => {calendarEvents.trigger(SHOW_EVENTS_IN_HTML);}, 40);
+        setTimeout(() => {calendarEvents.trigger(SHOW_EVENTS_IN_HTML);}, 50);
         const closestEvent = events.length ? helperModule.minValueOfTime(events) : {};
 
-        if (closestEvent.timeToFinish) {
+        if (notFinishedLength()) {
             closestEvent.isActive = true;
             triggerSetInterval(closestEvent);
         }
@@ -44,9 +44,10 @@ const calendarEvents = (function () {
                 secondsLeft = 0;
                 clearInterval(interval);
                 closestEvent.isFinished = true;
+                closestEvent.isActive = false;
                 closestEvent.callback();
                 setEventsByTime(closestEvent.timeToFinish);
-                calendarEvents.unsubscribeFunc(closestEvent.callback);
+                calendarEvents.unsubscribeFunc(closestEvent.id, closestEvent.callback);
 
                 calendarEvents.trigger(closestEvent.id);
                 startAndRefreshTimer();
@@ -57,6 +58,10 @@ const calendarEvents = (function () {
 
     function setEventsByTime(secondsLeft) {
         events.forEach(event => !event.isFinished && (event.timeToFinish = event.timeToFinish - secondsLeft));
+    }
+
+    function notFinishedLength() {
+        return events.filter(event => !event.isFinished).length;
     }
 
     return {
@@ -83,7 +88,7 @@ const calendarEvents = (function () {
                     if (!helperModule.dataIsValid(eventName, newDate)) return;
                     const timeToFinish = helperModule.calculateDateDifference(newDate);
                     setEventsByTime(secondsLeft);
-                    this.unsubscribeFunc(event.callback);
+                    this.unsubscribeFunc(event.id, event.callback);
                     event.isActive = false;
                     event = Object.assign(event, {eventName, timeToFinish, newDate});
                     startTimer(event);
@@ -118,8 +123,8 @@ const calendarEvents = (function () {
             observer.unsubscribe(key);
         },
 
-        unsubscribeFunc(func) {
-            observer.unsubscribeFunc(func);
+        unsubscribeFunc(key, func) {
+            observer.unsubscribeFunc(key, func);
         },
 
         trigger(key) {
