@@ -11,13 +11,14 @@
             .reduce((prev, curr) => prev < curr ? prev : curr);
     }
 
-    function getDateOfNewDay (addDaysBeforeTriggerEvent) {
-        let year = new Date().getFullYear();
-        let month = new Date().getMonth() + 1;
+    function getDateOfNewDay (addDaysBeforeTriggerEvent, newDate) {
+        let year = newDate ? newDate.getFullYear() : new Date().getFullYear();
+        let month = newDate ? newDate.getMonth() + 1 : new Date().getMonth() + 1;
         const daysInCurrentMonth =  new Date(year, month, 0).getDate();
-        let day = new Date().getDate();
-
-        day = day + addDaysBeforeTriggerEvent;
+        let day = newDate ? newDate.getDate() + addDaysBeforeTriggerEvent : new Date().getDate() + addDaysBeforeTriggerEvent;
+        let hours = newDate ? newDate.getHours() : new Date().getHours();
+        let minutes = newDate ? newDate.getMinutes() : new Date().getMinutes();
+        let seconds = newDate ? newDate.getSeconds() : new Date().getSeconds() + 1;
 
         if (day >  daysInCurrentMonth) {
             day = day - daysInCurrentMonth;
@@ -30,36 +31,36 @@
 
         return {
             'date': `${day}.${month}.${year}`,
-            'time': `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds() + 1}`
+            'time': `${hours}:${minutes}:${seconds}`
         };
     }
 
-    calendarEvents.everyDay = function(idOrName, date, time, callback) {
+    calendarEvents.everyDay = function(idOrName, eventDate, options) {
         if (arguments.length === 1) {
-            const notFinished = helperModule.notFinishedEvents(this.getEvents);
-            notFinished.forEach(event => (event.id === idOrName) && (event.everyDay = true));
-            console.table(this.getEvents);
+            this.getEvents.forEach(event => {
+                if(event.id === idOrName) {
+                    const dateOfNewDay = getDateOfNewDay(1, event.newDate);
+                    eventDate = {...eventDate, date: dateOfNewDay.date, time: dateOfNewDay.time};
+                    options = {callback: event.callback, repeatEveryDay: true};
+                    calendarEvents.createEvent(event.eventName, eventDate, options);
+                }
+            });
         } else {
-            calendarEvents.createEvent(idOrName, date, time, callback);
+            options = {...options, repeatEveryDay: true};
+            calendarEvents.createEvent(idOrName, eventDate, options);
         }
-
-        // observer.subscribe(id, function () {
-        //     const dateOfNewDay = getDateOfNewDay(1);
-        //     calendarEvents.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback, id);
-        // });
     };
 
-    calendarEvents.everySelectedDay = function(eventName, date, time, callback, id, ...selectedDays) {
-        id = id || helperModule.generateId();
+    calendarEvents.everySelectedDay = function(idOrName, eventDate, options, ...selectedDays) {
         //remove duplicates
         selectedDays = [...new Set(selectedDays)];
         if (!helperModule.selectedDaysIsValid(selectedDays)) return;
-        calendarEvents.createEvent(eventName, date, time, callback, id);
+        calendarEvents.createEvent(idOrName, date, time, callback);
 
         observer.subscribe(id, function () {
             const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
             const dateOfNewDay = getDateOfNewDay(countOfDays);
-            calendarEvents.createEvent(eventName, dateOfNewDay.date, dateOfNewDay.time, callback, id);
+            calendarEvents.createEvent(idOrName, dateOfNewDay.date, dateOfNewDay.time, callback);
         });
     };
 

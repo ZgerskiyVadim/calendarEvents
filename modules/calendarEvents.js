@@ -43,6 +43,8 @@ const calendarEvents = (function () {
                 closestEvent.callback();
                 setEventsByTime(closestEvent.timeToFinish);
                 observer.unsubscribeFunc(closestEvent.id, closestEvent.callback);
+                closestEvent.repeatEveryDay && calendarEvents.everyDay(closestEvent.id);
+                closestEvent.repeatSelectedDays && calendarEvents.everySelectedDay(closestEvent.id);
 
                 observer.trigger(closestEvent.id);
                 startAndRefreshTimer();
@@ -56,7 +58,9 @@ const calendarEvents = (function () {
 
     return {
 
-        createEvent(eventName, date, time, callback) {
+        createEvent(eventName, eventDate, options) {
+            const { date, time } = eventDate;
+            const { callback, repeatEveryDay, repeatSelectedDays } = options;
             const newDate = helperModule.newDate(date, time);
             if (!helperModule.dataIsValid(eventName, newDate, callback)) return;
             const timeToFinish = helperModule.calculateDateDifference(newDate);
@@ -67,12 +71,15 @@ const calendarEvents = (function () {
                 newDate,
                 callback
             };
+            repeatEveryDay && (newEvent.repeatEveryDay = repeatEveryDay);
+            repeatSelectedDays && (newEvent.repeatSelectedDays = repeatSelectedDays);
 
             events.push(newEvent);
             startTimer(newEvent);
         },
 
-        changeEvent(id, eventName, date, time) {
+        changeEvent(id, eventName, eventDate) {
+            const { date, time } = eventDate;
             events.forEach(event => {
                 if(event.id === id && !event.isFinished) {
                     const newDate = helperModule.newDate(date, time);
@@ -80,7 +87,7 @@ const calendarEvents = (function () {
                     const timeToFinish = helperModule.calculateDateDifference(newDate);
                     setEventsByTime(secondsLeft);
                     observer.unsubscribeFunc(event.id, event.callback);
-                    event = Object.assign(event, {eventName, timeToFinish, newDate, isActive: false});
+                    event = {...event, eventName, timeToFinish, newDate, isActive: false};
                     startTimer(event);
                 }
             });
@@ -92,6 +99,9 @@ const calendarEvents = (function () {
                     observer.unsubscribe(event.id);
                     events.splice(index, 1);
                     setEventsByTime(secondsLeft);
+                    startAndRefreshTimer();
+                } else if(event.id === id) {
+                    events.splice(index, 1);
                     startAndRefreshTimer();
                 }
             });

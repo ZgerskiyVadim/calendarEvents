@@ -8,7 +8,7 @@ window.addEventListener('load', function () {
         const eventsItems = calendarEvents.getEvents.map(event => {
             const time = `${event.newDate.getHours()}:${event.newDate.getMinutes()}:${event.newDate.getSeconds()}`;
             const date = `${event.newDate.getDate()}.${event.newDate.getMonth() + 1}.${event.newDate.getFullYear()}`;
-            const modifyEvent = Object.assign({}, event, {time, date});
+            const modifyEvent = {...event, time, date};
             return modifyEvent;
         });
         event.style.display = 'flex';
