@@ -25,7 +25,7 @@ window.addEventListener('load', function () {
             '</h2>';
 
         addItems(eventsItems);
-        changeBgColor(eventsItems);
+        changeBgColor();
     }
 
     // Show countdown in html
@@ -34,17 +34,13 @@ window.addEventListener('load', function () {
     });
 
     // Change background for finished events
-    function changeBgColor(eventsItems) {
-        const eventsFinished = eventsItems.filter(event => event.isFinished);
-        const times = document.querySelectorAll('.time');
-
-        eventsFinished.forEach(event => {
-            times.forEach(time => {
-                if (event.time.toString() === time.textContent.toString()) {
-                    const parentContainer = time.parentElement.parentElement;
-                    parentContainer.style.backgroundColor = 'rgba(0, 204, 0, 0.69)';
-                }
-            });
+    function changeBgColor() {
+        const finishedElems = document.querySelectorAll('.finished');
+        finishedElems.forEach(finishedElem => {
+            if (finishedElem.textContent.toString() === 'true') {
+                const parentContainer = finishedElem.parentElement.parentElement;
+                parentContainer.style.backgroundColor = 'rgba(0, 204, 0, 0.69)';
+            }
         });
     }
 
@@ -58,6 +54,7 @@ window.addEventListener('load', function () {
             innerOfItem.name.innerHTML = items[i].eventName;
             innerOfItem.date.innerHTML = items[i].date;
             innerOfItem.time.innerHTML = items[i].time;
+            innerOfItem.finished.innerHTML = items[i].isFinished ? items[i].isFinished : false;
             eventsContainer.appendChild(item);
             item = item.cloneNode(true);
         }
@@ -68,6 +65,7 @@ window.addEventListener('load', function () {
         let name = item.querySelector('.name');
         let date = item.querySelector('.date');
         let time = item.querySelector('.time');
-        return {id, name, date, time};
+        let finished = item.querySelector('.finished');
+        return {id, name, date, time, finished};
     }
 });

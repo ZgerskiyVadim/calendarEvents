@@ -17,10 +17,10 @@ function hey() {
     console.log('HELLO');
 }
 
-repeatEvent.everyDay('min', '10.05.2018', '11:30:10', testFunc, 3);
+repeatEvent.everyDay('min', '10.05.2018', '13:13:20', testFunc, 3);
 
-calendarEvents.createEvent('min', '10.05.2018', '11:30:30', hey, 1);
-calendarEvents.createEvent('aaa', '10.05.2018', '11:30:40', anotherTestFunc, 2);
+calendarEvents.createEvent('min', '10.05.2018', '13:15:30', hey, 1);
+calendarEvents.createEvent('aaa', '10.05.2018', '13:15:40', anotherTestFunc, 2);
 // setTimeout(() => {
 //     calendarEvents.deleteEvent(1);
 // }, 2000);

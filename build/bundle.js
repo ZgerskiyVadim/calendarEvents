@@ -410,10 +410,10 @@ function hey() {
     console.log('HELLO');
 }
 
-_repeatEvent2.default.everyDay('min', '10.05.2018', '11:30:10', testFunc, 3);
+_repeatEvent2.default.everyDay('min', '10.05.2018', '13:13:20', testFunc, 3);
 
-_calendarEvents2.default.createEvent('min', '10.05.2018', '11:30:30', hey, 1);
-_calendarEvents2.default.createEvent('aaa', '10.05.2018', '11:30:40', anotherTestFunc, 2);
+_calendarEvents2.default.createEvent('min', '10.05.2018', '13:15:30', hey, 1);
+_calendarEvents2.default.createEvent('aaa', '10.05.2018', '13:15:40', anotherTestFunc, 2);
 // setTimeout(() => {
 //     calendarEvents.deleteEvent(1);
 // }, 2000);
@@ -529,7 +529,7 @@ window.addEventListener('load', function () {
         eventsContainer.innerHTML = '<h1>Events:</h1>' + '<h2 class="event">' + '<div>id: <span class="id"></span></div>' + '<div>name: <span class="name"></span></div>' + '<div>date: <span class="date"></span></div>' + '<div>time: <span class="time"></span></div>' + '</h2>';
 
         addItems(eventsItems);
-        changeBgColor(eventsItems);
+        changeBgColor();
     }
 
     // Show countdown in html
@@ -538,19 +538,13 @@ window.addEventListener('load', function () {
     });
 
     // Change background for finished events
-    function changeBgColor(eventsItems) {
-        var eventsFinished = eventsItems.filter(function (event) {
-            return event.isFinished;
-        });
-        var times = document.querySelectorAll('.time');
-
-        eventsFinished.forEach(function (event) {
-            times.forEach(function (time) {
-                if (event.time.toString() === time.textContent.toString()) {
-                    var parentContainer = time.parentElement.parentElement;
-                    parentContainer.style.backgroundColor = 'rgba(0, 204, 0, 0.69)';
-                }
-            });
+    function changeBgColor() {
+        var finishedElems = document.querySelectorAll('.finished');
+        finishedElems.forEach(function (finishedElem) {
+            if (finishedElem.textContent.toString() === 'true') {
+                var parentContainer = finishedElem.parentElement.parentElement;
+                parentContainer.style.backgroundColor = 'rgba(0, 204, 0, 0.69)';
+            }
         });
     }
 
@@ -564,6 +558,7 @@ window.addEventListener('load', function () {
             innerOfItem.name.innerHTML = items[i].eventName;
             innerOfItem.date.innerHTML = items[i].date;
             innerOfItem.time.innerHTML = items[i].time;
+            innerOfItem.finished.innerHTML = items[i].isFinished ? items[i].isFinished : false;
             eventsContainer.appendChild(item);
             item = item.cloneNode(true);
         }
@@ -574,7 +569,8 @@ window.addEventListener('load', function () {
         var name = item.querySelector('.name');
         var date = item.querySelector('.date');
         var time = item.querySelector('.time');
-        return { id: id, name: name, date: date, time: time };
+        var finished = item.querySelector('.finished');
+        return { id: id, name: name, date: date, time: time, finished: finished };
     }
 });
 
