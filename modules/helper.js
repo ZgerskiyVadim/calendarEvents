@@ -17,9 +17,13 @@ export default (function () {
             return new Date(parsedDate.year, parsedDate.month, parsedDate.day, parsedTime.hour, parsedTime.minute, parsedTime.second);
         },
 
-        minValueOfTime (array) {
-            const notFinished = array.filter(elem => !elem.isFinished);
+        minValueOfTime (events) {
+            const notFinished = this.notFinishedEvents(events);
             return notFinished.length && notFinished.reduce((prev, curr) => prev.timeToFinish < curr.timeToFinish ? prev : curr);
+        },
+
+        notFinishedEvents(events) {
+            return events.filter(event => !event.isFinished);
         },
 
         parseDate (date) {

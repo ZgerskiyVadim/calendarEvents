@@ -24,9 +24,10 @@ const calendarEvents = (function () {
     function startAndRefreshTimer() {
         clearInterval(interval);
         setTimeout(() => {calendarEvents.trigger(SHOW_EVENTS_IN_HTML);}, 50);
-        const closestEvent = events.length ? helperModule.minValueOfTime(events) : {};
+        const closestEvent = helperModule.minValueOfTime(events);
+        const lengthNotFinished = helperModule.notFinishedEvents(events).length;
 
-        if (notFinishedLength()) {
+        if (lengthNotFinished) {
             closestEvent.isActive = true;
             triggerSetInterval(closestEvent);
         }
@@ -60,10 +61,6 @@ const calendarEvents = (function () {
         events.forEach(event => !event.isFinished && (event.timeToFinish = event.timeToFinish - secondsLeft));
     }
 
-    function notFinishedLength() {
-        return events.filter(event => !event.isFinished).length;
-    }
-
     return {
         createEvent(eventName, date, time, callback, id) {
             const newDate = helperModule.newDate(date, time);
@@ -89,8 +86,7 @@ const calendarEvents = (function () {
                     const timeToFinish = helperModule.calculateDateDifference(newDate);
                     setEventsByTime(secondsLeft);
                     this.unsubscribeFunc(event.id, event.callback);
-                    event.isActive = false;
-                    event = Object.assign(event, {eventName, timeToFinish, newDate});
+                    event = Object.assign(event, {eventName, timeToFinish, newDate, isActive: false});
                     startTimer(event);
                 }
             });
