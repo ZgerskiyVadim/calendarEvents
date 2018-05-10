@@ -51,6 +51,8 @@ export default (function () {
 
         everySelectedDay(eventName, date, time, callback, id, ...selectedDays) {
             id = id || helperModule.generateId();
+            //remove duplicates
+            selectedDays = [...new Set(selectedDays)];
             if (!helperModule.selectedDaysIsValid(selectedDays)) return;
             calendarEvents.createEvent(eventName, date, time, callback, id);
 
