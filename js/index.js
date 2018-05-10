@@ -1,6 +1,3 @@
-import calendarEvents from '../modules/calendarEvents';
-import { COUNTDOWN, SHOW_EVENTS_IN_HTML } from '../constants';
-
 window.addEventListener('load', function () {
     const eventsContainer = document.querySelector('.events');
     const event = eventsContainer.querySelector('.event');

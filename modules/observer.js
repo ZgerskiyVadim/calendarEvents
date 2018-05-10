@@ -34,5 +34,3 @@ class Observable {
         this.observers.forEach(subscriber => (subscriber.key === key) && (subscriber.funcs.forEach(f => f())));
     }
 }
-
-export default Observable;

@@ -1,6 +1,6 @@
-export const COUNTDOWN = 'countdown';
-export const SHOW_EVENTS_IN_HTML = 'showEventsInHtml';
-export const daysInWeek = 7;
-export const sunday = 7;
-export const numberOfMonthInYear = 12;
-export const miliseconds = 1000;
+const COUNTDOWN = 'countdown';
+const SHOW_EVENTS_IN_HTML = 'showEventsInHtml';
+const daysInWeek = 7;
+const sunday = 7;
+const numberOfMonthInYear = 12;
+const miliseconds = 1000;

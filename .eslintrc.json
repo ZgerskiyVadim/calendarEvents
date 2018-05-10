@@ -1,4 +1,16 @@
 {
+    "globals": {
+        "helperModule": true,
+        "observer": true,
+        "calendarEvents": true,
+        "COUNTDOWN": true,
+        "SHOW_EVENTS_IN_HTML": true,
+        "daysInWeek": true,
+        "sunday": true,
+        "numberOfMonthInYear": true,
+        "miliseconds": true
+
+    },
     "env": {
         "browser": true,
         "es6": true

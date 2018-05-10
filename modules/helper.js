@@ -1,7 +1,4 @@
-import throwError from "../throwError";
-import { miliseconds } from '../constants';
-
-export default (function () {
+const helperModule = (function () {
 
     return {
         calculateDateDifference (newDate) {
@@ -62,9 +59,9 @@ export default (function () {
         },
 
         dataIsValid(eventName, newDate, callback) {
-            if (!this.isString(eventName)) {throwError('Event name must be a string'); return false;}
-            if (!newDate) {throwError('Please enter valid date or time'); return false;}
-            if (callback && !this.isFunction(callback)) {throwError('Please enter function'); return false;}
+            if (!this.isString(eventName)) {console.error('Event name must be a string'); return false;}
+            if (!newDate) {console.error('Please enter valid date or time'); return false;}
+            if (callback && !this.isFunction(callback)) {console.error('Please enter function'); return false;}
             return true;
         },
 
@@ -75,7 +72,7 @@ export default (function () {
         selectedDaysIsValid(selectedDays) {
             const selectedDaysLength = selectedDays.length;
             for (let i = 0; i < selectedDaysLength; i++) {
-                if(!this.isNumber(selectedDays[i])) {throwError('Selected days must be a number'); return false;}
+                if(!this.isNumber(selectedDays[i])) {console.error('Selected days must be a number'); return false;}
             }
             return true;
         },
