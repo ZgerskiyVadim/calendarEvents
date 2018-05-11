@@ -8,7 +8,8 @@
         "daysInWeek": true,
         "sunday": true,
         "numberOfMonthInYear": true,
-        "miliseconds": true
+        "miliseconds": true,
+        "NEEDED_TIME_SHOW_IN_HTML": true
 
     },
     "env": {

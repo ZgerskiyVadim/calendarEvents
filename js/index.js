@@ -37,6 +37,15 @@ window.addEventListener('load', function () {
             if (finishedElem.textContent.toString() === 'true') {
                 const parentContainer = finishedElem.parentElement.parentElement;
                 parentContainer.style.backgroundColor = 'rgba(0, 204, 0, 0.69)';
+            } else {
+                const ids = document.querySelectorAll('.id');
+                const closestEvent = helperModule.minValueOfTime(calendarEvents.getEvents);
+                ids.forEach(id => {
+                    if (id.textContent.toString() === closestEvent.id.toString()) {
+                        const parentContainer = id.parentElement.parentElement;
+                        parentContainer.style.backgroundColor = 'darkorange';
+                    }
+                });
             }
         });
     }

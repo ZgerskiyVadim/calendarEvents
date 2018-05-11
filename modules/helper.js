@@ -16,7 +16,7 @@ const helperModule = (function () {
 
         minValueOfTime (events) {
             const notFinished = this.notFinishedEvents(events);
-            return notFinished.length && notFinished.reduce((prev, curr) => prev.timeToFinish < curr.timeToFinish ? prev : curr);
+            return notFinished.length && notFinished.reduce((prev, curr) => prev.newDate.getTime() < curr.newDate.getTime() ? prev : curr);
         },
 
         notFinishedEvents(events) {
