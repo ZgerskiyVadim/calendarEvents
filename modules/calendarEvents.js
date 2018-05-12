@@ -65,10 +65,10 @@ const calendarEvents = (function () {
 
         createEvent(eventName, eventDate, callback) {
             let newEvent = createNewEvent(eventName, eventDate, callback);
-
             if (!newEvent) return;
-            events.push(newEvent);
+
             this.subscribeOnEvent(newEvent.id, callback);
+            events.push(newEvent);
             refreshTimer();
             return newEvent;
         },
