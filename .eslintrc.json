@@ -5,12 +5,12 @@
         "calendarEvents": true,
         "COUNTDOWN": true,
         "SHOW_EVENTS_IN_HTML": true,
-        "daysInWeek": true,
-        "sunday": true,
-        "numberOfMonthInYear": true,
-        "miliseconds": true,
-        "NEEDED_TIME_SHOW_IN_HTML": true
-
+        "DAYS_IN_WEEK": true,
+        "SUNDAY": true,
+        "NUMBER_OF_MONTH_IN_YEAR": true,
+        "MILISECONDS": true,
+        "TIME_FOR_SHOW_IN_HTML": true,
+        "REPEAT_EVERY_DAY": true
     },
     "env": {
         "browser": true,

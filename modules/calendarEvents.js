@@ -4,23 +4,13 @@ const calendarEvents = (function () {
     let interval;
     let countdown = 0;
 
-    function startTimer(newEvent) {
-        if (newEvent.timeToFinish < 0) {
-            console.error('You can`t enter past date');
-            events.forEach((event, index) => (event.id === newEvent.id) && events.splice(index, 1));
-        } else {
-            observer.subscribe(newEvent.id, newEvent.callback);
-            startAndRefreshTimer();
-        }
-    }
-
-    function startAndRefreshTimer() {
+    function refreshTimer() {
+        setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, 0); // show items in html
         clearInterval(interval);
-        setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, NEEDED_TIME_SHOW_IN_HTML);
-        const closestEvent = helperModule.minValueOfTime(events);
-        const lengthNotFinished = helperModule.notFinishedEvents(events).length;
+        const lengthPendingEvents = helperModule.pendingEvents(events).length;
 
-        if (lengthNotFinished) {
+        if (lengthPendingEvents) {
+            const closestEvent = helperModule.minValueOfTime(events);
             closestEvent.isActive = true;
             closestEvent.timeToFinish = helperModule.calculateDateDifference(closestEvent.newDate);
             countdown = closestEvent.timeToFinish;
@@ -37,7 +27,7 @@ const calendarEvents = (function () {
                 clearInterval(interval);
                 triggerEventsSameDate(closestEvent);
                 setEventsTimeToFinish();
-                startAndRefreshTimer();
+                refreshTimer();
             }
         }, 1000);
     }
@@ -48,7 +38,7 @@ const calendarEvents = (function () {
 
     function triggerEventsSameDate(closestEvent) {
         events.forEach(event => {
-            if (event.timeToFinish <= 0 || event.newDate.toString() === closestEvent.newDate.toString()) {
+            if (!event.isFinished && (event.timeToFinish <= 0 || event.newDate.toString() === closestEvent.newDate.toString())) {
                 event.isFinished = true;
                 event.isActive = false;
                 observer.trigger(event.id);
@@ -57,23 +47,29 @@ const calendarEvents = (function () {
         });
     }
 
+    function createNewEvent(eventName, eventDate, callback) {
+        const { date, time } = eventDate;
+        const newDate = helperModule.newDate(date, time);
+        if (!helperModule.dataIsValid(eventName, newDate, callback)) return;
+        const timeToFinish = helperModule.calculateDateDifference(newDate);
+        return {
+            eventName,
+            id: helperModule.generateId(),
+            timeToFinish,
+            newDate,
+            callback
+        };
+    }
+
     return {
 
         createEvent(eventName, eventDate, callback) {
-            const { date, time } = eventDate;
-            const newDate = helperModule.newDate(date, time);
-            if (!helperModule.dataIsValid(eventName, newDate, callback)) return;
-            const timeToFinish = helperModule.calculateDateDifference(newDate);
-            const newEvent = {
-                eventName,
-                id: helperModule.generateId(),
-                timeToFinish,
-                newDate,
-                callback
-            };
+            let newEvent = createNewEvent(eventName, eventDate, callback);
 
+            if (!newEvent) return;
             events.push(newEvent);
-            startTimer(newEvent);
+            this.subscribeOnEvent(newEvent.id, callback);
+            refreshTimer();
             return newEvent;
         },
 
@@ -82,12 +78,11 @@ const calendarEvents = (function () {
             events.forEach(event => {
                 if(event.id === id && !event.isFinished) {
                     const newDate = helperModule.newDate(date, time);
-                    if (!helperModule.dataIsValid(eventName, newDate)) return;
+                    if (!helperModule.dataIsValid(eventName, newDate, event.callback)) return;
                     const timeToFinish = helperModule.calculateDateDifference(newDate);
+                    event = Object.assign(event, {eventName, timeToFinish, newDate, isActive: false});
                     setEventsTimeToFinish();
-                    observer.unsubscribeFunc(event.id, event.callback);
-                    event = {...event, eventName, timeToFinish, newDate, isActive: false};
-                    startTimer(event);
+                    refreshTimer();
                 }
             });
         },
@@ -98,15 +93,15 @@ const calendarEvents = (function () {
                     observer.unsubscribe(event.id);
                     events.splice(index, 1);
                     setEventsTimeToFinish();
-                    startAndRefreshTimer();
+                    refreshTimer();
                 } else if(event.id === id) {
                     events.splice(index, 1);
-                    startAndRefreshTimer();
+                    refreshTimer(); // for show changes in html
                 }
             });
         },
 
-        subscribe(key, func) {
+        subscribeOnEvent(key, func) {
             observer.subscribe(key, func);
         },
 

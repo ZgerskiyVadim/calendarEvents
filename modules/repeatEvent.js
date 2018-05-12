@@ -1,13 +1,13 @@
 (function (calendarEvents) {
 
-    function calculateCountDaysBeforeSelectedDay(selectedDays) {
-        const currentDayOfWeek = new Date().getDay();
+    function calculateCountDaysBeforeSelectedDay(selectedDays, newDate) {
+        const currentDayOfWeek = newDate ? newDate.getDay() : new Date().getDay();
 
         return selectedDays
             .map(selectedDay =>
                 (selectedDay - currentDayOfWeek) < 0 ?
-                    daysInWeek - (currentDayOfWeek - selectedDay) :
-                    (selectedDay - currentDayOfWeek) ? (selectedDay - currentDayOfWeek) : daysInWeek)
+                    DAYS_IN_WEEK - (currentDayOfWeek - selectedDay) :
+                    (selectedDay - currentDayOfWeek) ? (selectedDay - currentDayOfWeek) : DAYS_IN_WEEK)
             .reduce((prev, curr) => prev < curr ? prev : curr);
     }
 
@@ -24,7 +24,7 @@
             day = day - daysInCurrentMonth;
             month = month + 1;
         }
-        if (month > numberOfMonthInYear) {
+        if (month > NUMBER_OF_MONTH_IN_YEAR) {
             month = 1;
             year = year + 1;
         }
@@ -35,44 +35,57 @@
         };
     }
 
-    function subscribeOnEvent(newEvent, numberOfDaysBeforeEvent) {
-        const newDate = getDateOfNewDay(numberOfDaysBeforeEvent, newEvent.newDate);
-        const eventDate = {
-            date: newDate.date,
-            time: newDate.time
-        };
-        newEvent = calendarEvents.createEvent(newEvent.eventName, eventDate, newEvent.callback);
-        calendarEvents.subscribe(newEvent.id, () => {
-            subscribeOnEvent(newEvent, numberOfDaysBeforeEvent);
+    function subscribeOnEvent(newEvent, numberOfDaysBeforeEvent, selectedDays) {
+        calendarEvents.subscribeOnEvent(newEvent.id, () => {
+            numberOfDaysBeforeEvent = selectedDays ? calculateCountDaysBeforeSelectedDay(selectedDays) : numberOfDaysBeforeEvent;
+            const eventDate = getDateOfNewDay(numberOfDaysBeforeEvent);
+            selectedDays ?
+                calendarEvents.repeatSelectedDays(newEvent.eventName, eventDate, newEvent.callback, selectedDays) :
+                calendarEvents.repeatEveryDay(newEvent.eventName, eventDate, newEvent.callback);
         });
     }
 
-    calendarEvents.repeatEveryDay = function(idOrName, eventDate, options) {
-        if (arguments.length === 1) {
-            this.getEvents.forEach(event => {
-                if(event.id === idOrName) {
-                    subscribeOnEvent(event, 1);
-                }
-            });
-        } else {
-            const newEvent = calendarEvents.createEvent(idOrName, eventDate, options);
-            subscribeOnEvent(newEvent, 1);
-        }
+    function repeatFinishedEvent(newEvent, numberOfDaysBeforeEvent, selectedDays) {
+        const eventDate = getDateOfNewDay(numberOfDaysBeforeEvent, newEvent.newDate);
+        newEvent = calendarEvents.createEvent(newEvent.eventName, eventDate, newEvent.callback);
+        subscribeOnEvent(newEvent, numberOfDaysBeforeEvent, selectedDays);
+    }
+
+    calendarEvents.repeatEveryDay = function(eventName, eventDate, callback) {
+        const newEvent = calendarEvents.createEvent(eventName, eventDate, callback);
+        newEvent && subscribeOnEvent(newEvent, REPEAT_EVERY_DAY);
     };
 
-    // Need rewrite like for repeatEveryDay method
+    calendarEvents.repeatEveryDayById = function (id) {
+        this.getEvents.forEach(event =>
+            (event.id === id) &&
+            (event.isFinished ?
+                repeatFinishedEvent(event, REPEAT_EVERY_DAY) :
+                subscribeOnEvent(event, REPEAT_EVERY_DAY))
 
-    // calendarEvents.repeatSelectedDays = function(idOrName, eventDate, options, ...selectedDays) {
-    //     //remove duplicates
-    //     selectedDays = [...new Set(selectedDays)];
-    //     if (!helperModule.selectedDaysIsValid(selectedDays)) return;
-    //     calendarEvents.createEvent(idOrName, date, time, callback);
-    //
-    //     observer.subscribe(id, function () {
-    //         const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
-    //         const dateOfNewDay = getDateOfNewDay(countOfDays);
-    //         calendarEvents.createEvent(idOrName, dateOfNewDay.date, dateOfNewDay.time, callback);
-    //     });
-    // };
+        );
+    };
+
+    calendarEvents.repeatSelectedDays = function(eventName, eventDate, callback, selectedDays) {
+        selectedDays = helperModule.removeDuplicates(selectedDays);
+        if (!helperModule.selectedDaysIsValid(selectedDays)) return;
+        const newEvent = calendarEvents.createEvent(eventName, eventDate, callback);
+        const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
+        newEvent && subscribeOnEvent(newEvent, countOfDays, selectedDays);
+    };
+
+    calendarEvents.repeatSelectedDaysById = function (id, selectedDays) {
+        selectedDays = helperModule.removeDuplicates(selectedDays);
+        if (!helperModule.selectedDaysIsValid(selectedDays)) return;
+        this.getEvents.forEach(event => {
+            if (event.id === id && event.isFinished) {
+                const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
+                repeatFinishedEvent(event, countOfDays, selectedDays);
+            } else if (event.id === id) {
+                const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays, event.newDate);
+                subscribeOnEvent(event, countOfDays, selectedDays);
+            }
+        });
+    };
 
 }(calendarEvents));

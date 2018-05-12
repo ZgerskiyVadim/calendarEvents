@@ -3,15 +3,15 @@
     function lastDayOfWeek(numberOfWeek) {
         const year = event.newDate.getFullYear();
         const month = event.newDate.getMonth();
-        const firstWeekDayOfMonth = new Date(year, month).getDay() || sunday;
+        const firstWeekDayOfMonth = new Date(year, month).getDay() || SUNDAY;
 
-        return ((daysInWeek - firstWeekDayOfMonth + 1) + (daysInWeek * numberOfWeek));
+        return ((DAYS_IN_WEEK - firstWeekDayOfMonth + 1) + (DAYS_IN_WEEK * numberOfWeek));
     }
 
 
     calendarEvents.perDay = function(dayNumber) {
         if (!helperModule.isNumber(dayNumber)) return console.error('Please enter number of day when 1 - monday and 7 - sunday');
-        return this.getEvents.filter(event => (event.newDate.getDay() || sunday) === dayNumber);
+        return this.getEvents.filter(event => (event.newDate.getDay() || SUNDAY) === dayNumber);
     };
 
     calendarEvents.perWeek = function(weekNumber) {

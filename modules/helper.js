@@ -4,7 +4,7 @@ const helperModule = (function () {
         calculateDateDifference (newDate) {
             const nowDate = new Date().getTime();
             const chosenDate = newDate.getTime();
-            return parseInt((chosenDate - nowDate) / miliseconds);
+            return parseInt((chosenDate - nowDate) / MILISECONDS);
         },
 
         newDate (date, time) {
@@ -15,12 +15,16 @@ const helperModule = (function () {
         },
 
         minValueOfTime (events) {
-            const notFinished = this.notFinishedEvents(events);
+            const notFinished = this.pendingEvents(events);
             return notFinished.length && notFinished.reduce((prev, curr) => prev.newDate.getTime() < curr.newDate.getTime() ? prev : curr);
         },
 
-        notFinishedEvents(events) {
+        pendingEvents(events) {
             return events.filter(event => !event.isFinished);
+        },
+
+        removeDuplicates(array) {
+            return [...new Set(array)];
         },
 
         parseDate (date) {
@@ -55,13 +59,13 @@ const helperModule = (function () {
         generateId() {
             return Math.floor((1 + Math.random()) * 0x10000)
                 .toString(16)
-                .substring(2);
+                .substring(1);
         },
 
         dataIsValid(eventName, newDate, callback) {
             if (!this.isString(eventName)) {console.error('Event name must be a string'); return false;}
-            if (!newDate) {console.error('Please enter valid date or time'); return false;}
-            if (callback && !this.isFunction(callback)) {console.error('Please enter function'); return false;}
+            if (!newDate || !this.timeIsValid(newDate)) {console.error('Please enter valid date or time'); return false;}
+            if (!this.isFunction(callback)) {console.error('Please enter function'); return false;}
             return true;
         },
 
@@ -70,9 +74,10 @@ const helperModule = (function () {
         },
 
         selectedDaysIsValid(selectedDays) {
-            const selectedDaysLength = selectedDays.length;
+            const selectedDaysLength = selectedDays && selectedDays.length;
+            if (!selectedDaysLength) {console.error('Selected days must be array'); return false;}
             for (let i = 0; i < selectedDaysLength; i++) {
-                if(!this.isNumber(selectedDays[i])) {console.error('Selected days must be a number'); return false;}
+                if(!this.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
             }
             return true;
         },
@@ -88,6 +93,10 @@ const helperModule = (function () {
 
         isFunction(value) {
             return typeof value === 'function';
+        },
+
+        timeIsValid(newDate) {
+            return this.calculateDateDifference(newDate) > 0;
         }
     };
 }());

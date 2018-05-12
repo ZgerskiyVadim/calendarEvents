@@ -2,7 +2,7 @@ window.addEventListener('load', function () {
     const eventsContainer = document.querySelector('.events');
     const event = eventsContainer.querySelector('.event');
     const countdown = document.querySelector('.countdown');
-    calendarEvents.subscribe(SHOW_EVENTS_IN_HTML, showEvents);
+    calendarEvents.subscribeOnEvent(SHOW_EVENTS_IN_HTML, showEvents);
 
     function showEvents() {
         const eventsItems = calendarEvents.getEvents.map(event => {
@@ -26,7 +26,7 @@ window.addEventListener('load', function () {
     }
 
     // Show countdown in html
-    calendarEvents.subscribe(COUNTDOWN, () => {
+    calendarEvents.subscribeOnEvent(COUNTDOWN, () => {
         countdown.innerHTML = calendarEvents.getCountDown;
     });
 
