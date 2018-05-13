@@ -51,12 +51,23 @@
         subscribeOnEvent(newEvent, numberOfDaysBeforeEvent, selectedDays);
     }
 
+    function selectedDaysIsValid(selectedDays) {
+        const selectedDaysLength = selectedDays && selectedDays.length;
+        if (!selectedDaysLength) {console.error('Selected days must be array with number of days when 1 - monday and 7 - sunday'); return false;}
+        for (let i = 0; i < selectedDaysLength; i++) {
+            if(!helperModule.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
+        }
+        return true;
+    }
+
     calendarEvents.repeatEveryDay = function(eventName, eventDate, callback) {
         const newEvent = calendarEvents.createEvent(eventName, eventDate, callback);
         newEvent && subscribeOnEvent(newEvent, REPEAT_EVERY_DAY);
     };
 
     calendarEvents.repeatEveryDayById = function (id) {
+        if (!helperModule.idIsValid(id)) return;
+
         this.getEvents.forEach(event =>
             (event.id === id) &&
             (event.isFinished ?
@@ -67,16 +78,18 @@
     };
 
     calendarEvents.repeatSelectedDays = function(eventName, eventDate, callback, selectedDays) {
+        if (!selectedDaysIsValid(selectedDays)) return;
         selectedDays = helperModule.removeDuplicates(selectedDays);
-        if (!helperModule.selectedDaysIsValid(selectedDays)) return;
         const newEvent = calendarEvents.createEvent(eventName, eventDate, callback);
         const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
         newEvent && subscribeOnEvent(newEvent, countOfDays, selectedDays);
     };
 
     calendarEvents.repeatSelectedDaysById = function (id, selectedDays) {
+        if (!helperModule.idIsValid(id)) return;
+        if (!selectedDaysIsValid(selectedDays)) return;
         selectedDays = helperModule.removeDuplicates(selectedDays);
-        if (!helperModule.selectedDaysIsValid(selectedDays)) return;
+
         this.getEvents.forEach(event => {
             if (event.id === id && event.isFinished) {
                 const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);

@@ -50,7 +50,8 @@ const calendarEvents = (function () {
     function createNewEvent(eventName, eventDate, callback) {
         const { date, time } = eventDate;
         const newDate = helperModule.newDate(date, time);
-        if (!helperModule.dataIsValid(eventName, newDate, callback)) return;
+        if (!nameAndDateIsValid(eventName, newDate, callback)) return;
+        if (!helperModule.isFunction(callback)) return;
         const timeToFinish = helperModule.calculateDateDifference(newDate);
         return {
             eventName,
@@ -59,6 +60,12 @@ const calendarEvents = (function () {
             newDate,
             callback
         };
+    }
+
+    function nameAndDateIsValid(eventName, newDate) {
+        if (!helperModule.isString(eventName)) {console.error('Event name must be a string'); return false;}
+        if (!newDate || !helperModule.timeIsValid(newDate)) {console.error('Please enter valid date or time'); return false;}
+        return true;
     }
 
     return {
@@ -75,10 +82,11 @@ const calendarEvents = (function () {
 
         changeEvent(id, eventName, eventDate) {
             const { date, time } = eventDate;
+            const newDate = helperModule.newDate(date, time);
+            if (!helperModule.idIsValid(id)) return;
+            if (!nameAndDateIsValid(eventName, newDate)) return;
             events.forEach(event => {
                 if(event.id === id && !event.isFinished) {
-                    const newDate = helperModule.newDate(date, time);
-                    if (!helperModule.dataIsValid(eventName, newDate, event.callback)) return;
                     const timeToFinish = helperModule.calculateDateDifference(newDate);
                     event = Object.assign(event, {eventName, timeToFinish, newDate, isActive: false});
                     setEventsTimeToFinish();
@@ -88,6 +96,7 @@ const calendarEvents = (function () {
         },
 
         deleteEvent(id) {
+            if (!helperModule.idIsValid(id)) return;
             events.forEach((event, index) => {
                 if(event.id === id && !event.isFinished) {
                     observer.unsubscribe(event.id);

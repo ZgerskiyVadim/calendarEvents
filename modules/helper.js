@@ -62,10 +62,8 @@ const helperModule = (function () {
                 .substring(1);
         },
 
-        dataIsValid(eventName, newDate, callback) {
-            if (!this.isString(eventName)) {console.error('Event name must be a string'); return false;}
-            if (!newDate || !this.timeIsValid(newDate)) {console.error('Please enter valid date or time'); return false;}
-            if (!this.isFunction(callback)) {console.error('Please enter function'); return false;}
+        idIsValid(id) {
+            if (!helperModule.isString(id)) {console.error('Event id must be a string'); return false;}
             return true;
         },
 
@@ -73,13 +71,8 @@ const helperModule = (function () {
             return !arrayOfDate.length || (arrayOfDate.length !== 3);
         },
 
-        selectedDaysIsValid(selectedDays) {
-            const selectedDaysLength = selectedDays && selectedDays.length;
-            if (!selectedDaysLength) {console.error('Selected days must be array'); return false;}
-            for (let i = 0; i < selectedDaysLength; i++) {
-                if(!this.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
-            }
-            return true;
+        timeIsValid(newDate) {
+            return this.calculateDateDifference(newDate) > 0;
         },
 
         isNumber(value) {
@@ -92,11 +85,12 @@ const helperModule = (function () {
         },
 
         isFunction(value) {
-            return typeof value === 'function';
-        },
-
-        timeIsValid(newDate) {
-            return this.calculateDateDifference(newDate) > 0;
+            if (typeof value === 'function') {
+                return true;
+            } else {
+                console.error('Please enter function');
+                return false;
+            }
         }
     };
 }());
