@@ -8,10 +8,12 @@ const helperModule = (function () {
         },
 
         newDate (date, time) {
+            if (!date) {console.error('Date must be a object with property date'); return;}
             const parsedDate = this.parseDate(date);
             const parsedTime = this.parseTime(time);
-            if (!parsedDate || !parsedTime) return;
-            return new Date(parsedDate.year, parsedDate.month, parsedDate.day, parsedTime.hour, parsedTime.minute, parsedTime.second);
+            if (parsedDate && parsedTime) {
+                return new Date(parsedDate.year, parsedDate.month, parsedDate.day, parsedTime.hour, parsedTime.minute, parsedTime.second);
+            }
         },
 
         minValueOfTime (events) {
@@ -29,7 +31,7 @@ const helperModule = (function () {
 
         parseDate (date) {
             const arrayDate = date ? date.split('.') : [];
-            if (this.dateIsNotValid(arrayDate)) return;
+            if (this.arrayOfDateIsNotValid(arrayDate)) {console.error('Date format: dd.mm.yyyy'); return;}
             const day = arrayDate[0];
             const month = arrayDate[1] - 1;
             const year = arrayDate[2];
@@ -44,7 +46,7 @@ const helperModule = (function () {
 
         parseTime(time) {
             const arrayTime = time ? time.split(':') : [];
-            if (time && this.dateIsNotValid(arrayTime)) return;
+            if (time && this.arrayOfDateIsNotValid(arrayTime)) {console.error('Time format: hh:mm:ss'); return;}
             const hour = arrayTime[0] || 0;
             const minute = arrayTime[1] || 0;
             const second = arrayTime[2] || 0;
@@ -67,7 +69,7 @@ const helperModule = (function () {
             return true;
         },
 
-        dateIsNotValid(arrayOfDate) {
+        arrayOfDateIsNotValid(arrayOfDate) {
             return !arrayOfDate.length || (arrayOfDate.length !== 3);
         },
 

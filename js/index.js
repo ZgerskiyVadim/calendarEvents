@@ -27,7 +27,7 @@ window.addEventListener('load', function () {
 
     // Show countdown in html
     calendarEvents.subscribeOnEvent(COUNTDOWN, () => {
-        countdown.innerHTML = calendarEvents.getCountDown;
+        countdown.innerHTML = calendarEvents.getCountdown;
     });
 
     // Change background for finished events

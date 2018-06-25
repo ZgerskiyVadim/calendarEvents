@@ -64,7 +64,8 @@ const calendarEvents = (function () {
 
     function nameAndDateIsValid(eventName, newDate) {
         if (!helperModule.isString(eventName)) {console.error('Event name must be a string'); return false;}
-        if (!newDate || !helperModule.timeIsValid(newDate)) {console.error('Please enter valid date or time'); return false;}
+        if (!newDate) return false;
+        if (!helperModule.timeIsValid(newDate)) {console.error('Please enter valid date or time'); return false;}
         return true;
     }
 
@@ -117,8 +118,8 @@ const calendarEvents = (function () {
         get getEvents() {
             return events;
         },
-
-        get getCountDown() {
+        //show countdown in html
+        get getCountdown() {
             return countdown;
         }
     };
