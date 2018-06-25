@@ -70,10 +70,9 @@
 
         this.getEvents.forEach(event =>
             (event.id === id) &&
-            (event.isFinished ?
+            event.isFinished ?
                 repeatFinishedEvent(event, REPEAT_EVERY_DAY) :
-                subscribeOnEvent(event, REPEAT_EVERY_DAY))
-
+                subscribeOnEvent(event, REPEAT_EVERY_DAY)
         );
     };
 

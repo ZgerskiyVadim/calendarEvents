@@ -1,11 +1,11 @@
 const calendarEvents = (function () {
     const observer = new Observable();
-    let events = [];
+    const events = [];
     let interval;
     let countdown = 0;
 
     function refreshTimer() {
-        setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, 0); // show events in html
+        setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, TIME_FOR_SHOW_IN_HTML); // show events in html
         clearInterval(interval);
         const lengthPendingEvents = helperModule.pendingEvents(events).length;
 
@@ -118,6 +118,7 @@ const calendarEvents = (function () {
         get getEvents() {
             return events;
         },
+
         //show countdown in html
         get getCountdown() {
             return countdown;
