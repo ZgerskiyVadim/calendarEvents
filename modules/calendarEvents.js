@@ -5,7 +5,7 @@ const calendarEvents = (function () {
     let countdown = 0;
 
     function refreshTimer() {
-        setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, 0); // show items in html
+        setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, 0); // show events in html
         clearInterval(interval);
         const lengthPendingEvents = helperModule.pendingEvents(events).length;
 
@@ -123,4 +123,5 @@ const calendarEvents = (function () {
             return countdown;
         }
     };
+
 }());

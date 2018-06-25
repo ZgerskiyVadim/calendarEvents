@@ -35,4 +35,5 @@
         if (!startPeriod || !finishPeriod) return console.error('Please enter valid date');
         return this.getEvents.filter (event => event.newDate.getTime() >= startPeriod && event.newDate.getTime() <= finishPeriod);
     };
+
 }(calendarEvents));

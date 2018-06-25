@@ -10,7 +10,7 @@
 
     function secondsAndCallbackIsValid(seconds, callback) {
         if (!helperModule.isNumber(seconds)) {console.error('Seconds must be a number'); return false;}
-        return !helperModule.isFunction(callback);
+        return helperModule.isFunction(callback);
     }
 
     calendarEvents.beforeEventsCallFunc = function(secondsBeforeCallEvent, callback) {
@@ -38,4 +38,5 @@
             });
         });
     };
+
 }(calendarEvents));
