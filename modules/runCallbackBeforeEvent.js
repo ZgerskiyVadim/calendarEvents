@@ -9,12 +9,12 @@
     }
 
     function isValidSeconds(seconds) {
-        if (!helperModule.isNumber(seconds)) {console.error('Seconds must be a number'); return false;}
+        if (!validationService.isNumber(seconds)) {console.error('Seconds must be a number'); return false;}
         return true;
     }
 
     function isValidCallback(callback) {
-        return helperModule.isFunction(callback);
+        return validationService.isFunction(callback);
     }
 
     calendarEvents.addFuncBeforeAllEvents = function(secondsBeforeEvent, callback) {

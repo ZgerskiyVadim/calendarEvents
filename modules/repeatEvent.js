@@ -59,15 +59,6 @@
         addFuncForRepeatEvent(newEvent, daysBeforeEvent, selectedDays);
     }
 
-    function isValidSelectedDays(selectedDays) {
-        const selectedDaysLength = selectedDays && selectedDays.length;
-        if (!selectedDaysLength) {console.error('Selected days must be array with number of days when 1 - monday and 7 - sunday'); return false;}
-        for (let i = 0; i < selectedDaysLength; i++) {
-            if(!helperModule.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
-        }
-        return true;
-    }
-
     calendarEvents.repeatEveryDay = function(eventName, eventDate, callback) {
         const newEvent = calendarEvents.addNewEvent(eventName, eventDate, callback);
         newEvent && addFuncForRepeatEvent(newEvent, EVERY_DAY_VALUE_FOR_REPEAT);
@@ -83,7 +74,7 @@
     };
 
     calendarEvents.repeatSelectedDays = function(eventName, eventDate, callback, selectedDays) {
-        if (!isValidSelectedDays(selectedDays)) return;
+        if (!validationService.isValidSelectedDays(selectedDays)) return;
         selectedDays = helperModule.removeDuplicates(selectedDays);
         const newEvent = calendarEvents.addNewEvent(eventName, eventDate, callback);
         const countOfDays = getCountDaysBeforeSelectedDay(selectedDays);
@@ -91,7 +82,7 @@
     };
 
     calendarEvents.repeatSelectedDaysById = function (id, selectedDays) {
-        if (!isValidSelectedDays(selectedDays)) return;
+        if (!validationService.isValidSelectedDays(selectedDays)) return;
         selectedDays = helperModule.removeDuplicates(selectedDays);
 
         this.getEvents.forEach(event => {

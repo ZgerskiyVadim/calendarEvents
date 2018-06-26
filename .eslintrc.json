@@ -3,6 +3,7 @@
         "helperModule": true,
         "observer": true,
         "calendarEvents": true,
+        "validationService": true,
         "COUNTDOWN": true,
         "SHOW_EVENTS_IN_HTML": true,
         "COUNT_DAYS_IN_WEEK": true,

@@ -10,12 +10,12 @@
 
 
     calendarEvents.getEventsForDay = function(dayNumber) {
-        if (!helperModule.isNumber(dayNumber)) return console.error('Please enter number of day when 1 - monday and 7 - sunday');
+        if (!validationService.isNumber(dayNumber)) return console.error('Please enter number of day when 1 - monday and 7 - sunday');
         return this.getEvents.filter(event => (event.newDate.getDay() || COUNT_SUNDAY) === dayNumber);
     };
 
     calendarEvents.getEventsForWeek = function(weekNumber) {
-        if (!helperModule.isNumber(weekNumber)) return console.error('Please enter number of week when 1 - first week');
+        if (!validationService.isNumber(weekNumber)) return console.error('Please enter number of week when 1 - first week');
         const chosenWeek = weekNumber - 1;
         const previousLastWeekDay = chosenWeek - 1;
         return calendarEvents.getEvents.filter(event => {
@@ -25,7 +25,7 @@
     };
 
     calendarEvents.getEventsForMonth = function(monthNumber) {
-        if (!helperModule.isNumber(monthNumber)) return console.error('Please enter number of month when 1 - january and 12 - december');
+        if (!validationService.isNumber(monthNumber)) return console.error('Please enter number of month when 1 - january and 12 - december');
         return this.getEvents.filter(event => event.newDate.getMonth() === (monthNumber - 1));
     };
 

@@ -1,0 +1,40 @@
+const validationService = (function () {
+
+    return {
+
+        isValidSelectedDays(selectedDays) {
+            const selectedDaysLength = selectedDays && selectedDays.length;
+            if (!selectedDaysLength) {console.error('Selected days must be array with number of days when 1 - monday and 7 - sunday'); return false;}
+            for (let i = 0; i < selectedDaysLength; i++) {
+                if(!helperModule.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
+            }
+            return true;
+        },
+
+        isValidDate(dateArray) {
+            return dateArray.length && (dateArray.length === 3);
+        },
+
+        isFinishedTime(newDate) {
+            return this.getDateDifference(newDate) > 0;
+        },
+
+        isNumber(value) {
+            if (value <= 0) return false;
+            return Number.isInteger(value);
+        },
+
+        isString(value) {
+            return typeof value === 'string';
+        },
+
+        isFunction(value) {
+            if (typeof value === 'function') {
+                return true;
+            } else {
+                console.error('Please enter function');
+                return false;
+            }
+        }
+    };
+}());
