@@ -2,13 +2,21 @@
 
     function getCountDaysBeforeSelectedDay(selectedDays, newDate) {
         const currentDayOfWeek = newDate ? newDate.getDay() : new Date().getDay();
+        const daysBeforeSelectedDays = setDaysBeforeSelectedDays(selectedDays, currentDayOfWeek);
 
+        return minDaysBeforeSelectedDay(daysBeforeSelectedDays);
+    }
+
+    function setDaysBeforeSelectedDays(selectedDays, currentDayOfWeek) {
         return selectedDays
             .map(selectedDay =>
                 (selectedDay - currentDayOfWeek) < 0 ?
                     DAYS_IN_WEEK - (currentDayOfWeek - selectedDay) :
-                    (selectedDay - currentDayOfWeek) ? (selectedDay - currentDayOfWeek) : DAYS_IN_WEEK)
-            .reduce((prev, curr) => prev < curr ? prev : curr);
+                    (selectedDay - currentDayOfWeek) ? (selectedDay - currentDayOfWeek) : DAYS_IN_WEEK);
+    }
+
+    function minDaysBeforeSelectedDay(daysBeforeSelectedDays) {
+        return daysBeforeSelectedDays.reduce((prev, curr) => prev < curr ? prev : curr);
     }
 
     function getNewRepeatDate(daysBeforeEvent, newDate) {
