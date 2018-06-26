@@ -1,27 +1,27 @@
 const helperModule = (function () {
 
     return {
-        calculateDateDifference (newDate) {
+        getDateDifference (newDate) {
             const nowDate = new Date().getTime();
             const chosenDate = newDate.getTime();
             return parseInt((chosenDate - nowDate) / MILISECONDS);
         },
 
-        newDate (date, time) {
+        getFormatDate (date, time) {
             if (!date) {console.error('Date must be a object with property date'); return;}
-            const parsedDate = this.parseDate(date);
-            const parsedTime = this.parseTime(time);
+            const parsedDate = this.getParseDate(date);
+            const parsedTime = this.getParseTime(time);
             if (parsedDate && parsedTime) {
                 return new Date(parsedDate.year, parsedDate.month, parsedDate.day, parsedTime.hour, parsedTime.minute, parsedTime.second);
             }
         },
 
-        minValueOfTime (events) {
-            const notFinished = this.pendingEvents(events);
+        getMinTimeValue (events) {
+            const notFinished = this.handleEventsPending(events);
             return notFinished.length && notFinished.reduce((prev, curr) => prev.newDate.getTime() < curr.newDate.getTime() ? prev : curr);
         },
 
-        pendingEvents(events) {
+        handleEventsPending(events) {
             return events.filter(event => !event.isFinished);
         },
 
@@ -29,13 +29,13 @@ const helperModule = (function () {
             return [...new Set(array)];
         },
 
-        parseDate (date) {
-            const arrayDate = date ? date.split('.') : [];
-            if (this.arrayOfDateIsNotValid(arrayDate)) {console.error('Date format: dd.mm.yyyy'); return;}
-            const day = arrayDate[0];
-            const month = arrayDate[1] - 1;
-            const year = arrayDate[2];
-            if (day.length > 2 || month.length > 2 || year.length !== 4) return;
+        getParseDate (date) {
+            const dateArray = date ? date.split('.') : [];
+            if (!this.isValidDate(dateArray)) {console.error('Date format: dd.mm.yyyy'); return;}
+            const day = dateArray[0];
+            const month = dateArray[1] - 1;
+            const year = dateArray[2];
+            if (day.length > MAX_LETTERS_IN_DAY || month.length > MAX_LETTERS_IN_MONTH || year.length !== LETTERS_IN_YEAR) return;
 
             return {
                 day,
@@ -44,12 +44,12 @@ const helperModule = (function () {
             };
         },
 
-        parseTime(time) {
-            const arrayTime = time ? time.split(':') : [];
-            if (time && this.arrayOfDateIsNotValid(arrayTime)) {console.error('Time format: hh:mm:ss'); return;}
-            const hour = arrayTime[0] || 0;
-            const minute = arrayTime[1] || 0;
-            const second = arrayTime[2] || 0;
+        getParseTime(time) {
+            const timeArray = time ? time.split(':') : [];
+            if (time && !this.isValidDate(timeArray)) {console.error('Time format: hh:mm:ss'); return;}
+            const hour = timeArray[0] || DEFAULT_TIME;
+            const minute = timeArray[1] || DEFAULT_TIME;
+            const second = timeArray[2] || DEFAULT_TIME;
 
             return {
                 hour,
@@ -64,17 +64,12 @@ const helperModule = (function () {
                 .substring(1);
         },
 
-        idIsValid(id) {
-            if (!helperModule.isString(id)) {console.error('Event id must be a string'); return false;}
-            return true;
+        isValidDate(dateArray) {
+            return dateArray.length && (dateArray.length === 3);
         },
 
-        arrayOfDateIsNotValid(arrayOfDate) {
-            return !arrayOfDate.length || (arrayOfDate.length !== 3);
-        },
-
-        timeIsValid(newDate) {
-            return this.calculateDateDifference(newDate) > 0;
+        isFinishedTime(newDate) {
+            return this.getDateDifference(newDate) > 0;
         },
 
         isNumber(value) {

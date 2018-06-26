@@ -2,7 +2,7 @@ window.addEventListener('load', function () {
     const eventsContainer = document.querySelector('.events');
     const event = eventsContainer.querySelector('.event');
     const countdown = document.querySelector('.countdown');
-    calendarEvents.subscribeOnEvent(SHOW_EVENTS_IN_HTML, showEvents);
+    calendarEvents.addFuncForEvent(SHOW_EVENTS_IN_HTML, showEvents);
 
     function showEvents() {
         const eventsItems = calendarEvents.getEvents.map(event => {
@@ -14,19 +14,19 @@ window.addEventListener('load', function () {
         event.style.display = 'flex';
 
         eventsContainer.innerHTML = '<h1>Events:</h1>' +
-            '<h2 class="event">' +
+            '<div class="event">' +
             '<div>id: <span class="id"></span></div>' +
             '<div>name: <span class="name"></span></div>' +
             '<div>date: <span class="date"></span></div>' +
             '<div>time: <span class="time"></span></div>' +
-            '</h2>';
+            '</div>';
 
-        addItems(eventsItems);
+        render(eventsItems);
         changeBgColor();
     }
 
     // Show countdown in html
-    calendarEvents.subscribeOnEvent(COUNTDOWN, () => {
+    calendarEvents.addFuncForEvent(COUNTDOWN, () => {
         countdown.innerHTML = calendarEvents.getCountdown;
     });
 
@@ -39,7 +39,7 @@ window.addEventListener('load', function () {
                 parentContainer.style.backgroundColor = 'rgba(0, 204, 0, 0.69)';
             } else {
                 const ids = document.querySelectorAll('.id');
-                const closestEvent = helperModule.minValueOfTime(calendarEvents.getEvents);
+                const closestEvent = helperModule.getMinTimeValue(calendarEvents.getEvents);
                 ids.forEach(id => {
                     if (id.textContent.toString() === closestEvent.id.toString()) {
                         const parentContainer = id.parentElement.parentElement;
@@ -50,12 +50,12 @@ window.addEventListener('load', function () {
         });
     }
 
-    function addItems(items) {
+    function render(items) {
         let item = event.cloneNode(true);
         event.style.display = 'none';
 
         for (let i = 0; i < items.length; i++) {
-            let innerOfItem = elementsInContent(item);
+            let innerOfItem = setElementsInContent(item);
             innerOfItem.id.innerHTML = items[i].id;
             innerOfItem.name.innerHTML = items[i].eventName;
             innerOfItem.date.innerHTML = items[i].date;
@@ -66,7 +66,7 @@ window.addEventListener('load', function () {
         }
     }
 
-    function elementsInContent(item) {
+    function setElementsInContent(item) {
         let id = item.querySelector('.id');
         let name = item.querySelector('.name');
         let date = item.querySelector('.date');

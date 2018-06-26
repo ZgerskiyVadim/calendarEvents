@@ -1,6 +1,6 @@
 (function (calendarEvents) {
 
-    function calculateCountDaysBeforeSelectedDay(selectedDays, newDate) {
+    function getCountDaysBeforeSelectedDay(selectedDays, newDate) {
         const currentDayOfWeek = newDate ? newDate.getDay() : new Date().getDay();
 
         return selectedDays
@@ -11,14 +11,14 @@
             .reduce((prev, curr) => prev < curr ? prev : curr);
     }
 
-    function getDateOfNewDay(numberOfDaysBeforeEvent, newDate) {
+    function getNewRepeatDate(daysBeforeEvent, newDate) {
         let year = new Date().getFullYear();
         let month = new Date().getMonth() + 1;
+        let day = new Date().getDate() + daysBeforeEvent;
         const daysInCurrentMonth =  new Date(year, month, 0).getDate();
-        let day = new Date().getDate() + numberOfDaysBeforeEvent;
-        let hours = newDate ? newDate.getHours() : new Date().getHours();
-        let minutes = newDate ? newDate.getMinutes() : new Date().getMinutes();
-        let seconds = newDate ? newDate.getSeconds() : new Date().getSeconds() + 1;
+        const hours = newDate ? newDate.getHours() : new Date().getHours();
+        const minutes = newDate ? newDate.getMinutes() : new Date().getMinutes();
+        const seconds = newDate ? newDate.getSeconds() : new Date().getSeconds() + 1;
 
         if (day >  daysInCurrentMonth) {
             day = day - daysInCurrentMonth;
@@ -35,23 +35,23 @@
         };
     }
 
-    function subscribeOnEvent(newEvent, numberOfDaysBeforeEvent, selectedDays) {
-        calendarEvents.subscribeOnEvent(newEvent.id, () => {
-            numberOfDaysBeforeEvent = selectedDays ? calculateCountDaysBeforeSelectedDay(selectedDays) : numberOfDaysBeforeEvent;
-            const eventDate = getDateOfNewDay(numberOfDaysBeforeEvent);
+    function addFuncForRepeatEvent(newEvent, daysBeforeEvent, selectedDays) {
+        calendarEvents.addFuncForEvent(newEvent.id, () => {
+            daysBeforeEvent = selectedDays ? getCountDaysBeforeSelectedDay(selectedDays) : daysBeforeEvent;
+            const eventDate = getNewRepeatDate(daysBeforeEvent);
             selectedDays ?
                 calendarEvents.repeatSelectedDays(newEvent.eventName, eventDate, newEvent.callback, selectedDays) :
                 calendarEvents.repeatEveryDay(newEvent.eventName, eventDate, newEvent.callback);
         });
     }
 
-    function repeatFinishedEvent(newEvent, numberOfDaysBeforeEvent, selectedDays) {
-        const eventDate = getDateOfNewDay(numberOfDaysBeforeEvent, newEvent.newDate);
-        newEvent = calendarEvents.createEvent(newEvent.eventName, eventDate, newEvent.callback);
-        subscribeOnEvent(newEvent, numberOfDaysBeforeEvent, selectedDays);
+    function repeatFinishedEvent(newEvent, daysBeforeEvent, selectedDays) {
+        const eventDate = getNewRepeatDate(daysBeforeEvent, newEvent.newDate);
+        newEvent = calendarEvents.addNewEvent(newEvent.eventName, eventDate, newEvent.callback);
+        addFuncForRepeatEvent(newEvent, daysBeforeEvent, selectedDays);
     }
 
-    function selectedDaysIsValid(selectedDays) {
+    function isValidSelectedDays(selectedDays) {
         const selectedDaysLength = selectedDays && selectedDays.length;
         if (!selectedDaysLength) {console.error('Selected days must be array with number of days when 1 - monday and 7 - sunday'); return false;}
         for (let i = 0; i < selectedDaysLength; i++) {
@@ -61,41 +61,38 @@
     }
 
     calendarEvents.repeatEveryDay = function(eventName, eventDate, callback) {
-        const newEvent = calendarEvents.createEvent(eventName, eventDate, callback);
-        newEvent && subscribeOnEvent(newEvent, REPEAT_EVERY_DAY);
+        const newEvent = calendarEvents.addNewEvent(eventName, eventDate, callback);
+        newEvent && addFuncForRepeatEvent(newEvent, EVERY_DAY_VALUE_FOR_REPEAT);
     };
 
     calendarEvents.repeatEveryDayById = function (id) {
-        if (!helperModule.idIsValid(id)) return;
-
         this.getEvents.forEach(event =>
             (event.id === id) &&
             event.isFinished ?
-                repeatFinishedEvent(event, REPEAT_EVERY_DAY) :
-                subscribeOnEvent(event, REPEAT_EVERY_DAY)
+                repeatFinishedEvent(event, EVERY_DAY_VALUE_FOR_REPEAT) :
+                addFuncForRepeatEvent(event, EVERY_DAY_VALUE_FOR_REPEAT)
         );
     };
 
     calendarEvents.repeatSelectedDays = function(eventName, eventDate, callback, selectedDays) {
-        if (!selectedDaysIsValid(selectedDays)) return;
+        if (!isValidSelectedDays(selectedDays)) return;
         selectedDays = helperModule.removeDuplicates(selectedDays);
-        const newEvent = calendarEvents.createEvent(eventName, eventDate, callback);
-        const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
-        newEvent && subscribeOnEvent(newEvent, countOfDays, selectedDays);
+        const newEvent = calendarEvents.addNewEvent(eventName, eventDate, callback);
+        const countOfDays = getCountDaysBeforeSelectedDay(selectedDays);
+        newEvent && addFuncForRepeatEvent(newEvent, countOfDays, selectedDays);
     };
 
     calendarEvents.repeatSelectedDaysById = function (id, selectedDays) {
-        if (!helperModule.idIsValid(id)) return;
-        if (!selectedDaysIsValid(selectedDays)) return;
+        if (!isValidSelectedDays(selectedDays)) return;
         selectedDays = helperModule.removeDuplicates(selectedDays);
 
         this.getEvents.forEach(event => {
             if (event.id === id && event.isFinished) {
-                const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays);
+                const countOfDays = getCountDaysBeforeSelectedDay(selectedDays);
                 repeatFinishedEvent(event, countOfDays, selectedDays);
             } else if (event.id === id) {
-                const countOfDays = calculateCountDaysBeforeSelectedDay(selectedDays, event.newDate);
-                subscribeOnEvent(event, countOfDays, selectedDays);
+                const countOfDays = getCountDaysBeforeSelectedDay(selectedDays, event.newDate);
+                addFuncForRepeatEvent(event, countOfDays, selectedDays);
             }
         });
     };

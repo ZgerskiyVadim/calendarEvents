@@ -4,44 +4,44 @@ const calendarEvents = (function () {
     let interval;
     let countdown = 0;
 
-    function refreshTimer() {
+    function setClosestEvent() {
         setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, TIME_FOR_SHOW_IN_HTML); // show events in html
         clearInterval(interval);
-        const lengthPendingEvents = helperModule.pendingEvents(events).length;
+        const lengthEventsPending = helperModule.handleEventsPending(events).length;
 
-        if (lengthPendingEvents) {
-            const closestEvent = helperModule.minValueOfTime(events);
+        if (lengthEventsPending) {
+            const closestEvent = helperModule.getMinTimeValue(events);
             closestEvent.isActive = true;
-            closestEvent.timeToFinish = helperModule.calculateDateDifference(closestEvent.newDate);
+            closestEvent.timeToFinish = helperModule.getDateDifference(closestEvent.newDate);
             countdown = closestEvent.timeToFinish;
-            triggerSetInterval(closestEvent);
+            runTimer(closestEvent);
         } else {
             countdown = 0;
             observer.trigger(COUNTDOWN); // update countdown in html
         }
     }
 
-    function triggerSetInterval(closestEvent) {
+    function runTimer(closestEvent) {
         interval = setInterval(() => {
             countdown = countdown - 1;
             observer.trigger(COUNTDOWN);
 
-            if (countdown <= 0) {
+            if (countdown === 0) {
                 clearInterval(interval);
-                triggerEventsSameDate(closestEvent);
-                setEventsTimeToFinish();
-                refreshTimer();
+                setFinishedEvents(closestEvent);
+                setEventsToFinish();
+                setClosestEvent();
             }
         }, 1000);
     }
 
-    function setEventsTimeToFinish() {
-        events.forEach(event => !event.isFinished ? (event.timeToFinish = helperModule.calculateDateDifference(event.newDate)) : event.timeToFinish = 0);
+    function setEventsToFinish() {
+        events.forEach(event => !event.isFinished ? (event.timeToFinish = helperModule.getDateDifference(event.newDate)) : event.timeToFinish = 0);
     }
 
-    function triggerEventsSameDate(closestEvent) {
+    function setFinishedEvents(closestEvent) {
         events.forEach(event => {
-            if (!event.isFinished && (event.timeToFinish <= 0 || event.newDate.toString() === closestEvent.newDate.toString())) {
+            if (!event.isFinished && (event.newDate.toString() === closestEvent.newDate.toString())) {
                 event.isFinished = true;
                 event.isActive = false;
                 observer.trigger(event.id);
@@ -50,12 +50,12 @@ const calendarEvents = (function () {
         });
     }
 
-    function createNewEvent(eventName, eventDate, callback) {
+    function getNewEvent(eventName, eventDate, callback) {
         const { date, time } = eventDate;
-        const newDate = helperModule.newDate(date, time);
-        if (!nameAndDateIsValid(eventName, newDate, callback)) return;
+        const newDate = helperModule.getFormatDate(date, time);
+        if (!nameAndDateIsValid(eventName, newDate)) return;
         if (!helperModule.isFunction(callback)) return;
-        const timeToFinish = helperModule.calculateDateDifference(newDate);
+        const timeToFinish = helperModule.getDateDifference(newDate);
         return {
             eventName,
             id: helperModule.generateId(),
@@ -68,53 +68,51 @@ const calendarEvents = (function () {
     function nameAndDateIsValid(eventName, newDate) {
         if (!helperModule.isString(eventName)) {console.error('Event name must be a string'); return false;}
         if (!newDate) return false;
-        if (!helperModule.timeIsValid(newDate)) {console.error('Please enter valid date or time'); return false;}
+        if (!helperModule.isFinishedTime(newDate)) {console.error('Please enter valid date or time'); return false;}
         return true;
     }
 
     return {
 
-        createEvent(eventName, eventDate, callback) {
-            let newEvent = createNewEvent(eventName, eventDate, callback);
+        addNewEvent(eventName, eventDate, callback) {
+            let newEvent = getNewEvent(eventName, eventDate, callback);
             if (!newEvent) return;
 
-            this.subscribeOnEvent(newEvent.id, callback);
+            this.addFuncForEvent(newEvent.id, callback);
             events.push(newEvent);
-            refreshTimer();
+            setClosestEvent();
             return newEvent;
         },
 
         changeEvent(id, eventName, eventDate) {
             const { date, time } = eventDate;
-            const newDate = helperModule.newDate(date, time);
-            if (!helperModule.idIsValid(id)) return;
+            const newDate = helperModule.getFormatDate(date, time);
             if (!nameAndDateIsValid(eventName, newDate)) return;
             events.forEach(event => {
                 if(event.id === id && !event.isFinished) {
-                    const timeToFinish = helperModule.calculateDateDifference(newDate);
+                    const timeToFinish = helperModule.getDateDifference(newDate);
                     event = Object.assign(event, {eventName, timeToFinish, newDate, isActive: false});
-                    setEventsTimeToFinish();
-                    refreshTimer();
+                    setEventsToFinish();
+                    setClosestEvent();
                 }
             });
         },
 
         deleteEvent(id) {
-            if (!helperModule.idIsValid(id)) return;
             events.forEach((event, index) => {
                 if(event.id === id && !event.isFinished) {
                     observer.unsubscribe(event.id);
                     events.splice(index, 1);
-                    setEventsTimeToFinish();
-                    refreshTimer();
+                    setEventsToFinish();
+                    setClosestEvent();
                 } else if(event.id === id) {
                     events.splice(index, 1);
-                    refreshTimer(); // for show changes in html
+                    setClosestEvent(); // for show changes in html
                 }
             });
         },
 
-        subscribeOnEvent(key, func) {
+        addFuncForEvent(key, func) {
             observer.subscribe(key, func);
         },
 

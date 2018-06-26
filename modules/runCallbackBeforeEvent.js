@@ -8,31 +8,36 @@
         return date.toString() === dateNow.toString();
     }
 
-    function secondsAndCallbackIsValid(seconds, callback) {
+    function isValidSeconds(seconds) {
         if (!helperModule.isNumber(seconds)) {console.error('Seconds must be a number'); return false;}
+        return true;
+    }
+
+    function isValidCallback(callback) {
         return helperModule.isFunction(callback);
     }
 
-    calendarEvents.beforeEventsCallFunc = function(secondsBeforeCallEvent, callback) {
-        if (!secondsAndCallbackIsValid(secondsBeforeCallEvent, callback)) return;
+    calendarEvents.addFuncBeforeAllEvents = function(secondsBeforeEvent, callback) {
+        if (!isValidSeconds(secondsBeforeEvent)) return;
+        if (!isValidCallback(callback)) return;
 
-        calendarEvents.subscribeOnEvent(COUNTDOWN, () => {
-            helperModule.pendingEvents(this.getEvents)
+        calendarEvents.addFuncForEvent(COUNTDOWN, () => {
+            helperModule.handleEventsPending(this.getEvents)
                 .forEach(event => {
-                    event.newDateBeforeEvent = event.newDateBeforeEvent ? event.newDateBeforeEvent : getNewDateBeforeEvent(event.newDate, secondsBeforeCallEvent);
+                    event.newDateBeforeEvent = event.newDateBeforeEvent ? event.newDateBeforeEvent : getNewDateBeforeEvent(event.newDate, secondsBeforeEvent);
                     isEqualDate(event.newDateBeforeEvent) && callback();
                 });
         });
     };
 
-    calendarEvents.beforeEventByIdCallFunc = function(id, secondsBeforeCallEvent, callback) {
-        if (!helperModule.idIsValid(id)) return;
-        if (!secondsAndCallbackIsValid(secondsBeforeCallEvent, callback)) return;
+    calendarEvents.addFuncBeforeEventById = function(id, secondsBeforeEvent, callback) {
+        if (!isValidSeconds(secondsBeforeEvent)) return;
+        if (!isValidCallback(callback)) return;
 
-        calendarEvents.subscribeOnEvent(COUNTDOWN, () => {
+        calendarEvents.addFuncForEvent(COUNTDOWN, () => {
             this.getEvents.forEach(event => {
                 if (event.id === id && !event.isFinished) {
-                    event.newDateBeforeEventById = event.newDateBeforeEventById ? event.newDateBeforeEventById : getNewDateBeforeEvent(event.newDate, secondsBeforeCallEvent);
+                    event.newDateBeforeEventById = event.newDateBeforeEventById ? event.newDateBeforeEventById : getNewDateBeforeEvent(event.newDate, secondsBeforeEvent);
                     isEqualDate(event.newDateBeforeEventById) && callback();
                 }
             });

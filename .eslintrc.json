@@ -10,7 +10,11 @@
         "NUMBER_OF_MONTH_IN_YEAR": true,
         "MILISECONDS": true,
         "TIME_FOR_SHOW_IN_HTML": true,
-        "REPEAT_EVERY_DAY": true
+        "EVERY_DAY_VALUE_FOR_REPEAT": true,
+        "DEFAULT_TIME": true,
+        "MAX_LETTERS_IN_DAY" : true,
+        "MAX_LETTERS_IN_MONTH" : true,
+        "LETTERS_IN_YEAR" : true
     },
     "env": {
         "browser": true,
