@@ -11,8 +11,8 @@
         return selectedDays
             .map(selectedDay =>
                 (selectedDay - currentDayOfWeek) < 0 ?
-                    DAYS_IN_WEEK - (currentDayOfWeek - selectedDay) :
-                    (selectedDay - currentDayOfWeek) ? (selectedDay - currentDayOfWeek) : DAYS_IN_WEEK);
+                    COUNT_DAYS_IN_WEEK - (currentDayOfWeek - selectedDay) :
+                    (selectedDay - currentDayOfWeek) ? (selectedDay - currentDayOfWeek) : COUNT_DAYS_IN_WEEK);
     }
 
     function minDaysBeforeSelectedDay(daysBeforeSelectedDays) {
@@ -32,7 +32,7 @@
             day = day - daysInCurrentMonth;
             month = month + 1;
         }
-        if (month > NUMBER_OF_MONTH_IN_YEAR) {
+        if (month > COUNT_MONTHS_IN_YEAR) {
             month = 1;
             year = year + 1;
         }
