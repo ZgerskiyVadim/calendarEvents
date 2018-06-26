@@ -15,6 +15,9 @@ const calendarEvents = (function () {
             closestEvent.timeToFinish = helperModule.calculateDateDifference(closestEvent.newDate);
             countdown = closestEvent.timeToFinish;
             triggerSetInterval(closestEvent);
+        } else {
+            countdown = 0;
+            observer.trigger(COUNTDOWN); // update countdown in html
         }
     }
 
