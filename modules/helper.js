@@ -2,9 +2,9 @@ const helperModule = (function () {
 
     return {
         getDateDifference (newDate) {
-            const nowDate = new Date().getTime();
-            const chosenDate = newDate.getTime();
-            return parseInt((chosenDate - nowDate) / MILISECONDS);
+            const date = new Date().getTime();
+            const eventDate = newDate.getTime();
+            return parseInt((eventDate - date) / MILISECONDS);
         },
 
         getFormatDate (date, time) {

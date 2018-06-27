@@ -4,9 +4,8 @@
         return new Date(parseInt(eventDate.getTime() - (secondsBeforeCall + 1) * MILISECONDS));
     }
 
-    function isEqualDate(date) {
-        const dateNow = new Date();
-        return date.toString() === dateNow.toString();
+    function isEqualDate(eventDate) {
+        return eventDate.toString() === new Date().toString();
     }
 
     calendarEvents.addFuncBeforeAllEvents = function(secondsBeforeEvent, callback) {
