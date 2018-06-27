@@ -31,7 +31,7 @@ const helperModule = (function () {
 
         getParseDate (date) {
             const dateArray = date ? date.split('.') : [];
-            if (!this.isValidDate(dateArray)) {console.error('Date format: dd.mm.yyyy'); return;}
+            if (!validationService.isValidDate(dateArray)) {console.error('Date format: dd.mm.yyyy'); return;}
             const day = dateArray[0];
             const month = dateArray[1] - 1;
             const year = dateArray[2];
@@ -46,7 +46,7 @@ const helperModule = (function () {
 
         getParseTime(time) {
             const timeArray = time ? time.split(':') : [];
-            if (time && !this.isValidDate(timeArray)) {console.error('Time format: hh:mm:ss'); return;}
+            if (time && !validationService.isValidDate(timeArray)) {console.error('Time format: hh:mm:ss'); return;}
             const hour = timeArray[0] || DEFAULT_TIME;
             const minute = timeArray[1] || DEFAULT_TIME;
             const second = timeArray[2] || DEFAULT_TIME;

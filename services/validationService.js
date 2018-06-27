@@ -6,7 +6,7 @@ const validationService = (function () {
             const selectedDaysLength = selectedDays && selectedDays.length;
             if (!selectedDaysLength) {console.error('Selected days must be array with number of days when 1 - monday and 7 - sunday'); return false;}
             for (let i = 0; i < selectedDaysLength; i++) {
-                if(!this.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
+                if(!validationService.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
             }
             return true;
         },
@@ -21,7 +21,7 @@ const validationService = (function () {
         },
 
         isFinishedTime(newDate) {
-            return this.getDateDifference(newDate) > 0;
+            return helperModule.getDateDifference(newDate) > 0;
         },
 
         isNumber(value) {
