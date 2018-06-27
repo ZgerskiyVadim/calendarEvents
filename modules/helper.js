@@ -62,33 +62,8 @@ const helperModule = (function () {
             return Math.floor((1 + Math.random()) * 0x10000)
                 .toString(16)
                 .substring(1);
-        },
+        }
 
-        // isValidDate(dateArray) {
-        //     return dateArray.length && (dateArray.length === 3);
-        // },
-        //
-        // isFinishedTime(newDate) {
-        //     return this.getDateDifference(newDate) > 0;
-        // },
-        //
-        // isNumber(value) {
-        //     if (value <= 0) return false;
-        //     return Number.isInteger(value);
-        // },
-        //
-        // isString(value) {
-        //     return typeof value === 'string';
-        // },
-        //
-        // isFunction(value) {
-        //     if (typeof value === 'function') {
-        //         return true;
-        //     } else {
-        //         console.error('Please enter function');
-        //         return false;
-        //     }
-        // }
     };
 
 }());

@@ -1,4 +1,5 @@
 (function (calendarEvents) {
+
     function getNewDateBeforeEvent(eventDate, secondsBeforeCall) {
         return new Date(parseInt(eventDate.getTime() - (secondsBeforeCall + 1) * MILISECONDS));
     }
@@ -8,18 +9,9 @@
         return date.toString() === dateNow.toString();
     }
 
-    function isValidSeconds(seconds) {
-        if (!validationService.isNumber(seconds)) {console.error('Seconds must be a number'); return false;}
-        return true;
-    }
-
-    function isValidCallback(callback) {
-        return validationService.isFunction(callback);
-    }
-
     calendarEvents.addFuncBeforeAllEvents = function(secondsBeforeEvent, callback) {
-        if (!isValidSeconds(secondsBeforeEvent)) return;
-        if (!isValidCallback(callback)) return;
+        if (!validationService.isValidSeconds(secondsBeforeEvent)) return;
+        if (!validationService.isFunction(callback)) return;
 
         calendarEvents.addFuncForEvent(COUNTDOWN, () => {
             helperModule.handleEventsPending(this.getEvents)
@@ -31,8 +23,8 @@
     };
 
     calendarEvents.addFuncBeforeEventById = function(id, secondsBeforeEvent, callback) {
-        if (!isValidSeconds(secondsBeforeEvent)) return;
-        if (!isValidCallback(callback)) return;
+        if (!validationService.isValidSeconds(secondsBeforeEvent)) return;
+        if (!validationService.isFunction(callback)) return;
 
         calendarEvents.addFuncForEvent(COUNTDOWN, () => {
             this.getEvents.forEach(event => {

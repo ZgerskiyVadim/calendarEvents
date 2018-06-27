@@ -6,8 +6,13 @@ const validationService = (function () {
             const selectedDaysLength = selectedDays && selectedDays.length;
             if (!selectedDaysLength) {console.error('Selected days must be array with number of days when 1 - monday and 7 - sunday'); return false;}
             for (let i = 0; i < selectedDaysLength; i++) {
-                if(!helperModule.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
+                if(!this.isNumber(selectedDays[i])) {console.error('Selected days must be a number when 1 - monday and 7 - sunday'); return false;}
             }
+            return true;
+        },
+
+        isValidSeconds(seconds) {
+            if (!this.isNumber(seconds)) {console.error('Seconds must be a number'); return false;}
             return true;
         },
 
