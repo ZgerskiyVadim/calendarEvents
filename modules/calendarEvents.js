@@ -53,7 +53,7 @@ const calendarEvents = (function () {
     function getNewEvent(eventName, eventDate, callback) {
         const { date, time } = eventDate;
         const newDate = helperModule.getFormatDate(date, time);
-        if (!isValidNameAndDate(eventName, newDate)) return;
+        if (!validationService.isValidNameAndDate(eventName, newDate)) return;
         if (!validationService.isFunction(callback)) return;
         const timeToFinish = helperModule.getDateDifference(newDate);
         return {
@@ -63,13 +63,6 @@ const calendarEvents = (function () {
             newDate,
             callback
         };
-    }
-
-    function isValidNameAndDate(eventName, newDate) {
-        if (!validationService.isString(eventName)) {console.error('Event name must be a string'); return false;}
-        if (!newDate) return false;
-        if (!validationService.isFinishedTime(newDate)) {console.error('Please enter valid date or time'); return false;}
-        return true;
     }
 
     return {
@@ -87,7 +80,7 @@ const calendarEvents = (function () {
         changeEvent(id, eventName, eventDate) {
             const { date, time } = eventDate;
             const newDate = helperModule.getFormatDate(date, time);
-            if (!isValidNameAndDate(eventName, newDate)) return;
+            if (!validationService.isValidNameAndDate(eventName, newDate)) return;
             events.forEach(event => {
                 if(event.id === id && !event.isFinished) {
                     const timeToFinish = helperModule.getDateDifference(newDate);

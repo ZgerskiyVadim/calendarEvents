@@ -2,6 +2,13 @@ const validationService = (function () {
 
     return {
 
+        isValidNameAndDate(eventName, newDate) {
+            if (!validationService.isString(eventName)) {console.error('Event name must be a string'); return false;}
+            if (!newDate) return false;
+            if (!validationService.isFinishedTime(newDate)) {console.error('Please enter valid date or time'); return false;}
+            return true;
+        },
+
         isValidSelectedDays(selectedDays) {
             const selectedDaysLength = selectedDays && selectedDays.length;
             if (!selectedDaysLength) {console.error('Selected days must be array with number of days when 1 - monday and 7 - sunday'); return false;}
