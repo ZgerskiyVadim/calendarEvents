@@ -15,7 +15,7 @@
         calendarEvents.addFuncForEvent(COUNTDOWN, () => {
             helperModule.handleEventsPending(this.getEvents)
                 .forEach(event => {
-                    event.newDateBeforeEvent = event.newDateBeforeEvent ? event.newDateBeforeEvent : getNewDateBeforeEvent(event.newDate, secondsBeforeEvent);
+                    event.newDateBeforeEvent = getNewDateBeforeEvent(event.newDate, secondsBeforeEvent);
                     isEqualDate(event.newDateBeforeEvent) && callback();
                 });
         });
@@ -28,7 +28,7 @@
         calendarEvents.addFuncForEvent(COUNTDOWN, () => {
             this.getEvents.forEach(event => {
                 if (event.id === id && !event.isFinished) {
-                    event.newDateBeforeEventById = event.newDateBeforeEventById ? event.newDateBeforeEventById : getNewDateBeforeEvent(event.newDate, secondsBeforeEvent);
+                    event.newDateBeforeEventById = getNewDateBeforeEvent(event.newDate, secondsBeforeEvent);
                     isEqualDate(event.newDateBeforeEventById) && callback();
                 }
             });

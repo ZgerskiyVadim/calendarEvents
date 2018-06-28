@@ -12,8 +12,7 @@ const calendarEvents = (function () {
         if (lengthEventsPending) {
             const closestEvent = helperModule.getMinTimeValue(events);
             closestEvent.isActive = true;
-            closestEvent.timeToFinish = helperModule.getDateDifference(closestEvent.newDate);
-            countdown = closestEvent.timeToFinish;
+            countdown = helperModule.getDateDifference(closestEvent.newDate);
             runTimer(closestEvent);
         } else {
             countdown = 0;
@@ -29,14 +28,9 @@ const calendarEvents = (function () {
             if (countdown === 0) {
                 clearInterval(interval);
                 setFinishedEvents(closestEvent);
-                setEventsToFinish();
                 setClosestEvent();
             }
         }, 1000);
-    }
-
-    function setEventsToFinish() {
-        events.forEach(event => !event.isFinished ? (event.timeToFinish = helperModule.getDateDifference(event.newDate)) : event.timeToFinish = 0);
     }
 
     function setFinishedEvents(closestEvent) {
@@ -55,11 +49,9 @@ const calendarEvents = (function () {
         const newDate = helperModule.getFormatDate(date, time);
         if (!validationService.isValidNameAndDate(eventName, newDate)) return;
         if (!validationService.isFunction(callback)) return;
-        const timeToFinish = helperModule.getDateDifference(newDate);
         return {
             eventName,
             id: helperModule.generateId(),
-            timeToFinish,
             newDate,
             callback
         };
@@ -83,9 +75,7 @@ const calendarEvents = (function () {
             if (!validationService.isValidNameAndDate(eventName, newDate)) return;
             events.forEach(event => {
                 if(event.id === id && !event.isFinished) {
-                    const timeToFinish = helperModule.getDateDifference(newDate);
-                    event = Object.assign(event, {eventName, timeToFinish, newDate, isActive: false});
-                    setEventsToFinish();
+                    event = Object.assign(event, {eventName, newDate, isActive: false});
                     setClosestEvent();
                 }
             });
@@ -96,7 +86,6 @@ const calendarEvents = (function () {
                 if(event.id === id && !event.isFinished) {
                     observer.unsubscribe(event.id);
                     events.splice(index, 1);
-                    setEventsToFinish();
                     setClosestEvent();
                 } else if(event.id === id) {
                     events.splice(index, 1);
