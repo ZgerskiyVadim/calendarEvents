@@ -2,6 +2,7 @@
     "globals": {
         "helperModule": true,
         "observer": true,
+        "Observable": true,
         "calendarEvents": true,
         "validationService": true,
         "COUNTDOWN": true,
