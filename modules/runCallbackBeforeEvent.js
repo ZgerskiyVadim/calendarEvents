@@ -1,5 +1,9 @@
 (function (calendarEvents) {
-    let addedFuncBeforeEvents = false;
+
+    calendarEvents.addFuncForEvent(DELETE_EVENT, (id) => {
+        const event = calendarEvents.getEvents.filter(event => event.parentEventID === id)[0];
+        event && calendarEvents.deleteEvent(event.id);
+    });
 
     function getNewDateBeforeEvent(eventDate, secondsBeforeCall) {
         const date =  new Date(parseInt(eventDate.getTime() - (secondsBeforeCall + 1) * MILISECONDS));
@@ -18,25 +22,12 @@
     function ifChangeEventAddCallbackBeforeEvent(secondsBeforeEvent) {
         calendarEvents.addFuncForEvent(CHANGE_EVENT, (id) => {
             const event = helperModule.handleEventsPending(calendarEvents.getEvents).filter(event => !event.parentEventID && event.id === id)[0];
-            if (addedFuncBeforeEvents && event) {
+            if (event && event.isFuncBeforeEvent) {
                 const beforeEventCallback = helperModule.handleEventsPending(calendarEvents.getEvents).filter(elem => elem.parentEventID === event.id)[0];
                 const eventDate = getNewDateBeforeEvent(event.newDate, secondsBeforeEvent);
                 calendarEvents.changeEvent(beforeEventCallback.id, event.eventName, eventDate, beforeEventCallback.callback);
             }
         });
-    }
-
-    function ifDeleteEventRemoveCallbackBeforeEvent() {
-        calendarEvents.addFuncForEvent(DELETE_EVENT, (id) => {
-            const event = calendarEvents.getEvents.filter(event => event.parentEventID === id)[0];
-            event && calendarEvents.deleteEvent(event.id);
-        });
-    }
-
-    function addCallbackBeforeEvents(secondsBeforeEvent) {
-        helperModule.handleEventsPending(calendarEvents.getEvents)
-            .filter(event => !event.isFuncBeforeEvent)
-            .forEach(event => addCallbackBeforeEvent(event, secondsBeforeEvent));
     }
 
     function changeSecondsCallbackBeforeEvents(secondsBeforeEvent,callback) {
@@ -66,11 +57,8 @@
         if (!validationService.isValidSeconds(secondsBeforeEvent)) return;
         if (!validationService.isFunction(callback)) return;
 
-        addedFuncBeforeEvents ? changeSecondsCallbackBeforeEvents (secondsBeforeEvent, callback) : addCallbackBeforeEvents(secondsBeforeEvent);
-        addedFuncBeforeEvents = true;
-
+        changeSecondsCallbackBeforeEvents(secondsBeforeEvent, callback);
         ifChangeEventAddCallbackBeforeEvent(secondsBeforeEvent);
-        ifDeleteEventRemoveCallbackBeforeEvent();
     };
 
     calendarEvents.addFuncBeforeEventById = function(id, secondsBeforeEvent, callback) {
