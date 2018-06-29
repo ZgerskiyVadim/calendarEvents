@@ -1,5 +1,7 @@
 const COUNTDOWN = 'countdown';
 const SHOW_EVENTS_IN_HTML = 'showEventsInHtml';
+const CHANGE_EVENT = 'changeEvent';
+const DELETE_EVENT = 'deleteEvent';
 const TIME_FOR_SHOW_IN_HTML = 0;
 const COUNT_DAYS_IN_WEEK = 7;
 const COUNT_SUNDAY = 7;

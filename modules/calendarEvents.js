@@ -63,7 +63,7 @@ const calendarEvents = (function () {
             let newEvent = getNewEvent(eventName, eventDate, callback);
             if (!newEvent) return;
 
-            this.addFuncForEvent(newEvent.id, callback);
+            calendarEvents.addFuncForEvent(newEvent.id, callback);
             events.push(newEvent);
             setClosestEvent();
             return newEvent;
@@ -76,6 +76,7 @@ const calendarEvents = (function () {
             events.forEach(event => {
                 if(event.id === id && !event.isFinished) {
                     event = Object.assign(event, {eventName, newDate, isActive: false});
+                    observer.trigger(CHANGE_EVENT, event.id);
                     setClosestEvent();
                 }
             });
@@ -86,6 +87,7 @@ const calendarEvents = (function () {
                 if(event.id === id && !event.isFinished) {
                     observer.unsubscribe(event.id);
                     events.splice(index, 1);
+                    observer.trigger(DELETE_EVENT, event.id);
                     setClosestEvent();
                 } else if(event.id === id) {
                     events.splice(index, 1);

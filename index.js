@@ -41,6 +41,11 @@ window.addEventListener('load', function () {
                 const ids = document.querySelectorAll('.id');
                 const closestEvent = helperModule.getMinTimeValue(calendarEvents.getEvents);
                 ids.forEach(id => {
+                    const beforeEventCallback = calendarEvents.getEvents.filter(event => event.id === id.textContent.toString())[0];
+                    if (beforeEventCallback && beforeEventCallback.parentEventID) {
+                        const parentContainer = id.parentElement.parentElement;
+                        parentContainer.style.backgroundColor = '#54218a';
+                    }
                     if (id.textContent.toString() === closestEvent.id.toString()) {
                         const parentContainer = id.parentElement.parentElement;
                         parentContainer.style.backgroundColor = 'darkorange';

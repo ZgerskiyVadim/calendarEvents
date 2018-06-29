@@ -65,7 +65,7 @@
     };
 
     calendarEvents.repeatEveryDayById = function (id) {
-        this.getEvents.forEach(event =>
+        calendarEvents.getEvents.forEach(event =>
             (event.id === id) &&
             event.isFinished ?
                 repeatFinishedEvent(event, EVERY_DAY_VALUE_FOR_REPEAT) :
@@ -85,7 +85,7 @@
         if (!validationService.isValidSelectedDays(selectedDays)) return;
         selectedDays = helperModule.removeDuplicates(selectedDays);
 
-        this.getEvents.forEach(event => {
+        calendarEvents.getEvents.forEach(event => {
             if (event.id === id && event.isFinished) {
                 const countOfDays = getCountDaysBeforeSelectedDay(selectedDays);
                 repeatFinishedEvent(event, countOfDays, selectedDays);

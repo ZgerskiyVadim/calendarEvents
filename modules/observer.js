@@ -19,7 +19,7 @@ class Observable {
         this.observers = this.observers.filter(subscriber => subscriber.key !== key);
     }
 
-    trigger (key) {
-        this.observers.forEach(subscriber => (subscriber.key === key) && (subscriber.funcs.forEach(f => f())));
+    trigger (key, message) {
+        this.observers.forEach(subscriber => (subscriber.key === key) && (subscriber.funcs.forEach(f => f(message))));
     }
 }

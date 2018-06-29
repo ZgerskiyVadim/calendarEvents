@@ -16,7 +16,9 @@
         "DEFAULT_TIME": true,
         "MAX_LETTERS_IN_DAY" : true,
         "MAX_LETTERS_IN_MONTH" : true,
-        "LETTERS_IN_YEAR" : true
+        "LETTERS_IN_YEAR" : true,
+        "CHANGE_EVENT" : true,
+        "DELETE_EVENT" : true
     },
     "env": {
         "browser": true,
