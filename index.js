@@ -3,6 +3,7 @@ window.addEventListener('load', function () {
     const event = eventsContainer.querySelector('.event');
     const countdown = document.querySelector('.countdown');
     calendarEvents.addFuncForEvent(SHOW_EVENTS_IN_HTML, showEvents);
+    calendarEvents.setClosestEvent();
 
     function showEvents() {
         const eventsItems = calendarEvents.getEvents.map(event => {

@@ -1,24 +1,10 @@
 const calendarEvents = (function () {
     const observer = new Observable();
-    const events = [];
+    const eventsFromLocalStorage = JSON.parse(window.localStorage.getItem('events')) || [];
+    const eventsDateParse = eventsFromLocalStorage.length && eventsFromLocalStorage.map(event => ( {...event, newDate: new Date(Date.parse(event.newDate))} ) );
+    const events = eventsDateParse.length ? eventsDateParse : [];
     let interval;
     let countdown = 0;
-
-    function setClosestEvent() {
-        setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, TIME_FOR_SHOW_IN_HTML); // show events in html
-        clearInterval(interval);
-        const lengthEventsPending = helperModule.handleEventsPending(events).length;
-
-        if (lengthEventsPending) {
-            const closestEvent = helperModule.getMinTimeValue(events);
-            closestEvent.isActive = true;
-            countdown = helperModule.getDateDifference(closestEvent.newDate);
-            runTimer(closestEvent);
-        } else {
-            countdown = 0;
-            observer.trigger(COUNTDOWN); // update countdown in html
-        }
-    }
 
     function runTimer(closestEvent) {
         interval = setInterval(() => {
@@ -28,7 +14,7 @@ const calendarEvents = (function () {
             if (countdown === 0) {
                 clearInterval(interval);
                 setFinishedEvents(closestEvent);
-                setClosestEvent();
+                calendarEvents.setClosestEvent();
             }
         }, 1000);
     }
@@ -40,6 +26,7 @@ const calendarEvents = (function () {
                 event.isActive = false;
                 observer.trigger(event.id);
                 observer.unsubscribe(event.id);
+                window.localStorage.setItem('events', JSON.stringify(calendarEvents.getEvents));
             }
         });
     }
@@ -65,7 +52,8 @@ const calendarEvents = (function () {
 
             calendarEvents.addFuncForEvent(newEvent.id, callback);
             events.push(newEvent);
-            setClosestEvent();
+            window.localStorage.setItem('events', JSON.stringify(calendarEvents.getEvents));
+            calendarEvents.setClosestEvent();
             return newEvent;
         },
 
@@ -77,7 +65,7 @@ const calendarEvents = (function () {
                 if(event.id === id && !event.isFinished) {
                     event = Object.assign(event, {eventName, newDate, isActive: false});
                     observer.trigger(CHANGE_EVENT, event.id);
-                    setClosestEvent();
+                    calendarEvents.setClosestEvent();
                 }
             });
         },
@@ -88,10 +76,10 @@ const calendarEvents = (function () {
                     observer.unsubscribe(event.id);
                     events.splice(index, 1);
                     observer.trigger(DELETE_EVENT, event.id);
-                    setClosestEvent();
+                    calendarEvents.setClosestEvent();
                 } else if(event.id === id) {
                     events.splice(index, 1);
-                    setClosestEvent(); // for show changes in html
+                    calendarEvents.setClosestEvent(); // for show changes in html
                 }
             });
         },
@@ -107,6 +95,22 @@ const calendarEvents = (function () {
         //show countdown in html
         get getCountdown() {
             return countdown;
+        },
+
+        setClosestEvent() {
+            setTimeout(() => {observer.trigger(SHOW_EVENTS_IN_HTML);}, TIME_FOR_SHOW_IN_HTML); // show events in html
+            clearInterval(interval);
+            const lengthEventsPending = helperModule.handleEventsPending(events).length;
+
+            if (lengthEventsPending) {
+                const closestEvent = helperModule.getMinTimeValue(events);
+                closestEvent.isActive = true;
+                countdown = helperModule.getDateDifference(closestEvent.newDate);
+                runTimer(closestEvent);
+            } else {
+                countdown = 0;
+                observer.trigger(COUNTDOWN); // update countdown in html
+            }
         }
     };
 
