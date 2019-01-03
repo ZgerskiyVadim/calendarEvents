@@ -65,6 +65,7 @@ const calendarEvents = (function () {
                 if(event.id === id && !event.isFinished) {
                     event = Object.assign(event, {eventName, newDate, isActive: false});
                     observer.trigger(CHANGE_EVENT, event.id);
+                    window.localStorage.setItem('events', JSON.stringify(calendarEvents.getEvents));
                     calendarEvents.setClosestEvent();
                 }
             });
@@ -81,6 +82,7 @@ const calendarEvents = (function () {
                     events.splice(index, 1);
                     calendarEvents.setClosestEvent(); // for show changes in html
                 }
+                window.localStorage.setItem('events', JSON.stringify(calendarEvents.getEvents));
             });
         },
 
